@@ -1,0 +1,48 @@
+        <h2 mat-dialog-title>{{ i18n.t("bucket.permission.add_title") }}</h2>
+        <mat-dialog-content class="dialog-content">
+            <!-- Filter Input -->
+            <mat-form-field appearance="outline" class="full-width filter-field">
+                <mat-label>{{ i18n.t("bucket.permission.search_label") }}</mat-label>
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput [formControl]="filter_control" [placeholder]="i18n.t('bucket.permission.search_placeholder')">
+            </mat-form-field>
+
+            <!-- Virtual Scroll List -->
+            @if (loading() && keys().length === 0) {
+                <div class="loading-state">
+                    <mat-spinner diameter="32"></mat-spinner>
+                </div>
+            } @else if (keys().length === 0) {
+                <div class="empty-list">
+                    <p>{{ i18n.t("bucket.permission.no_matching_keys") }}</p>
+                </div>
+            } @else {
+                <cdk-virtual-scroll-viewport itemSize="60" class="scroll-viewport" (scrolledIndexChange)="on_scroll($event)">
+                    <div *cdkVirtualFor="let key of keys()" 
+                         class="key-option" 
+                         [class.selected]="is_selected(key.id)"
+                         (click)="toggle_selection(key.id)">
+                        
+                        <mat-checkbox [checked]="is_selected(key.id)" (click)="$event.stopPropagation()" (change)="toggle_selection(key.id)" class="key-check"></mat-checkbox>
+                        
+                        <div class="key-item-content">
+                            <div class="key-name">{{ key.name || 'Unnamed Key' }}</div>
+                            <div class="key-id">{{ key.id }}</div>
+                        </div>
+                    </div>
+                    @if (loading()) {
+                        <div class="loading-state" style="height: 60px;">
+                            <mat-spinner diameter="24"></mat-spinner>
+                        </div>
+                    }
+                </cdk-virtual-scroll-viewport>
+            }
+        </mat-dialog-content>
+        <mat-dialog-actions align="end">
+            <button mat-button mat-dialog-close>{{ i18n.t("common.cancel") }}</button>
+            <button mat-flat-button color="primary" 
+                [disabled]="selected_ids().size === 0"
+                (click)="on_save()">
+                {{ i18n.t("bucket.permission.add_btn") }} ({{ selected_ids().size }})
+            </button>
+        </mat-dialog-actions>

@@ -1,0 +1,51 @@
+// Main Styles Entry Point
+// 全域樣式入口
+
+// ============================================
+// 1. Core Imports
+// ============================================
+@use "styles/variables";
+@use "styles/theme";
+@use "styles/animations";
+
+// ============================================
+// 2. Global Classes
+// ============================================
+@use "styles/global-classes";
+
+// ============================================
+// 3. Base Resets
+// ============================================
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    background-color: var(--garage-bg);
+    color: var(--garage-text-primary);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+// ============================================
+// 4. Material Dialog Overrides
+// ============================================
+.upload-dialog-panel {
+    .mat-mdc-dialog-container {
+        --mdc-dialog-container-color: transparent;
+        --mdc-dialog-container-shape: 16px;
+    }
+
+    .mat-mdc-dialog-surface {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+}
+
+.upload-dialog-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+

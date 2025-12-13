@@ -1,0 +1,5 @@
+{
+	"biome.configurationPath": "./frontend/biome.json",
+	"biome.lsp.bin": "./frontend/node_modules/@biomejs/cli-darwin-arm64/biome",
+	"rust-analyzer.linkedProjects": ["Cargo.toml"]
+}

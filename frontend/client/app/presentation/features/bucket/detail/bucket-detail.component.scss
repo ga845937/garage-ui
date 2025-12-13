@@ -1,0 +1,225 @@
+@use "styles/utilities";
+
+:host {
+    display: block;
+}
+
+// Header
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.header-action-btn {
+    color: var(--garage-text-secondary);
+    
+    &:hover {
+        color: var(--garage-text-primary);
+    }
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--garage-text-primary);
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+}
+
+.single-card-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+mat-card {
+    background: var(--garage-surface-card);
+    border: 1px solid var(--garage-border);
+    border-radius: 16px;
+}
+
+mat-card-header {
+    margin-bottom: var(--space-md);
+}
+
+mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--garage-text-primary);
+    
+    mat-icon {
+        color: var(--garage-text-secondary); 
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+}
+
+// Field row styles
+.field-row {
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+// Faux form field - for non-input fields like chips to match mat-form-field style
+.faux-form-field {
+    width: 100%;
+    position: relative;
+    border: 1px solid var(--garage-border);
+    border-radius: 8px;
+    padding: 12px var(--space-md);
+    background: transparent;
+    
+    .faux-label {
+        position: absolute;
+        top: -8px;
+        left: 12px;
+        padding: 0 4px;
+        background: var(--garage-surface-card);
+        color: var(--garage-text-secondary);
+        font-size: 0.75rem;
+        letter-spacing: 0.03em;
+    }
+    
+    .faux-input-area {
+        min-height: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+// Add alias row styling
+.add-alias-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+    
+    .alias-input {
+        flex: 1;
+        
+        // This specific fix might need to stay if material density issues persist
+        ::ng-deep .mat-mdc-form-field-infix {
+            min-height: 36px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+    }
+}
+
+// Alias chip-set styling - tag-like appearance
+.alias-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    
+    // Chips often need deep access for inner customization if not using standard composition
+    ::ng-deep .mat-mdc-chip {
+        background: linear-gradient(135deg, rgba(151, 23, 231, 0.15), rgba(108, 0, 245, 0.1));
+        border: 1px solid rgba(151, 23, 231, 0.3);
+        border-radius: 6px;
+        height: 28px;
+        padding: 0 10px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--garage-text-primary);
+        transition: all 0.2s ease;
+        
+        &:hover {
+            background: linear-gradient(135deg, rgba(151, 23, 231, 0.25), rgba(108, 0, 245, 0.15));
+            border-color: rgba(151, 23, 231, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        .mat-mdc-chip-action-label {
+            color: var(--garage-text-primary);
+        }
+        
+        // Remove button styling
+        .mat-mdc-chip-remove {
+            color: var(--garage-text-secondary);
+            opacity: 0.7;
+            transition: all 0.2s ease;
+            
+            &:hover {
+                color: var(--garage-gradient-pink);
+                opacity: 1;
+            }
+            
+            mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+}
+
+// Toggle field (slide toggle) - horizontal layout
+.toggle-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid var(--garage-border);
+    
+    .toggle-label {
+        color: var(--garage-text-primary);
+        font-size: 0.9rem;
+    }
+    
+    .toggle-value {
+        color: var(--garage-text-secondary);
+        font-size: 0.9rem;
+    }
+}
+
+// Copy button styling
+.copy-btn {
+    @include utilities.copy-btn(18px, 18px); // Small inline copy
+}
+
+// Quota section styling
+.quota-section {
+    background: rgba(0, 0, 0, 0.1); // Maybe var?
+    border-radius: 8px;
+    padding: var(--space-sm) var(--space-md);
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+// Material form field overrides
+.mat-mdc-form-field {
+    --mdc-outlined-text-field-container-shape: 8px;
+}
+
+// Disabled input styling to look more like read-only
+.mat-mdc-input-element:disabled {
+    color: var(--garage-text-primary);
+    -webkit-text-fill-color: var(--garage-text-primary);
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}

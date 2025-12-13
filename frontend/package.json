@@ -1,0 +1,74 @@
+{
+	"dependencies": {
+		"@angular/animations": "^21.0.8",
+		"@angular/cdk": "^21.0.5",
+		"@angular/common": "^21.0.8",
+		"@angular/compiler": "^21.0.8",
+		"@angular/core": "^21.0.8",
+		"@angular/forms": "^21.0.8",
+		"@angular/material": "^21.0.5",
+		"@angular/platform-browser": "^21.0.8",
+		"@angular/router": "^21.0.8",
+		"@bufbuild/protobuf": "^2.10.2",
+		"@connectrpc/connect": "^2.1.1",
+		"@connectrpc/connect-web": "^2.1.1",
+		"@grpc/grpc-js": "^1.14.3",
+		"@hono/node-server": "^1.19.7",
+		"@opentelemetry/exporter-trace-otlp-http": "^0.210.0",
+		"@opentelemetry/instrumentation-grpc": "^0.210.0",
+		"@opentelemetry/sdk-node": "^0.210.0",
+		"@opentelemetry/sdk-trace-node": "^2.4.0",
+		"@tolgee/ngx": "^6.2.7",
+		"class-transformer": "^0.5.1",
+		"class-validator": "^0.14.3",
+		"dotenv": "^17.2.3",
+		"hono": "^4.11.3",
+		"i": "^0.3.7",
+		"npm": "^11.7.0",
+		"redis": "^5.10.0",
+		"reflect-metadata": "^0.2.2",
+		"rxjs": "~7.8.0",
+		"sharp": "^0.34.5",
+		"ts-proto": "^2.11.0",
+		"tslib": "^2.3.0"
+	},
+	"devDependencies": {
+		"@angular/build": "^21.0.5",
+		"@angular/cli": "^21.0.5",
+		"@angular/compiler-cli": "^21.0.8",
+		"@biomejs/biome": "^2.3.11",
+		"@types/node": "^25.0.3",
+		"concurrently": "^9.2.1",
+		"tsc-alias": "^1.8.16",
+		"tsx": "^4.21.0",
+		"typescript": "~5.9.2"
+	},
+	"name": "garage-ui",
+	"packageManager": "npm@11.6.4",
+	"prettier": {
+		"overrides": [
+			{
+				"files": "*.html",
+				"options": {
+					"parser": "angular"
+				}
+			}
+		],
+		"printWidth": 100,
+		"singleQuote": true
+	},
+	"private": true,
+	"scripts": {
+		"build": "ng build",
+		"check": "biome check .",
+		"check:fix": "biome check --write .",
+		"dev": "concurrently \"npm:server\" \"npm:start\" --names \"BFF,Angular\" --prefix-colors \"cyan,magenta\"",
+		"format": "biome format .",
+		"proto": "node -e \"process.platform === 'win32' ? require('child_process').execSync('npm run proto:win', {stdio: 'inherit'}) : require('child_process').execSync('npm run proto:unix', {stdio: 'inherit'})\"",
+		"proto:unix": "protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=server/generated --ts_proto_opt=snakeToCamel=false --proto_path=../proto ../proto/*.proto",
+		"proto:win": "protoc --plugin=\"protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd\" --ts_proto_out=server/generated --ts_proto_opt=snakeToCamel=false --proto_path=../proto ../proto/*.proto",
+		"server": "npx tsx --tsconfig tsconfig.server.json server/main.ts",
+		"start": "ng serve --proxy-config proxy.conf.json"
+	},
+	"version": "0.1.0"
+}

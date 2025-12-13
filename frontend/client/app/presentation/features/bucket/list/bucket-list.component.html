@@ -1,0 +1,69 @@
+<div class="content-wrapper">
+    <!-- Selection Mode Toolbar -->
+    @if (selection_mode()) {
+        <div class="selection-toolbar">
+            <button mat-icon-button (click)="cancel_selection()" matTooltip="Cancel">
+                <mat-icon>close</mat-icon>
+            </button>
+            <mat-checkbox 
+                [checked]="store.all_selected()"
+                [indeterminate]="store.selected_ids().length > 0 && !store.all_selected()"
+                (change)="toggle_all()"
+            >
+                {{ 'common.select_all' | translate }}
+            </mat-checkbox>
+            <span class="selection-count">{{ store.selected_ids().length }} {{ 'common.selected' | translate }}</span>
+            <button 
+                mat-flat-button 
+                class="confirm-btn"
+                [disabled]="store.selected_ids().length === 0"
+                (click)="confirm_delete()"
+            >
+                <mat-icon>delete</mat-icon>
+                {{ 'common.confirm' | translate }}
+            </button>
+        </div>
+    }
+
+    <!-- Grid View -->
+    @if (store.items().length > 0) {
+        <div class="card-grid">
+            @for (bucket of store.items(); track bucket.id) {
+                <app-bucket-card 
+                    [bucket]="bucket"
+                    [selection_mode]="selection_mode()"
+                    [selected]="store.selected_ids().includes(bucket.id)"
+                    (card_click)="open_detail(bucket.id)"
+                    (files_click)="open_detail_files(bucket)"
+                    (delete_click)="delete_single(bucket.id)"
+                    (selection_change)="toggle_item_selection(bucket.id)"
+                ></app-bucket-card>
+            }
+        </div>
+
+        <!-- Loading sentinel for infinite scroll -->
+        <div #loading_sentinel class="loading-sentinel">
+            @if (layout.loading()) {
+                <mat-spinner diameter="32"></mat-spinner>
+            }
+        </div>
+    } @else if (layout.loading()) {
+        <div class="loading-container">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
+    } @else {
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon-wrapper">
+                <mat-icon>folder</mat-icon>
+            </div>
+            <h2>{{ 'bucket.empty' | translate }}</h2>
+            <p>{{ 'bucket.empty_desc' | translate }}</p>
+            <button mat-flat-button class="create-btn" (click)="create_bucket()">
+                <mat-icon>add</mat-icon>
+                {{ 'bucket.create_first' | translate }}
+            </button>
+        </div>
+    }
+</div>
+

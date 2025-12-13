@@ -1,0 +1,43 @@
+# ====================
+# Rust (gRPC Server)
+# ====================
+/target/
+# Note: Cargo.lock is tracked for binary crates (applications)
+# to ensure reproducible builds. Only ignore for library crates.
+**/*.rs.bk
+*.pdb
+
+# ====================
+# Shared: Environment & Secrets
+# ====================
+.env
+.env.local
+.env.*.local
+*.env
+
+# ====================
+# Shared: IDE & Editors
+# ====================
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+
+# ====================
+# Shared: OS Files
+# ====================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ====================
+# Shared: Logs
+# ====================
+logs/
+*.log

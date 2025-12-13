@@ -1,0 +1,140 @@
+syntax = "proto3";
+
+package block;
+
+// Block Service - gRPC API for block operations
+service BlockService {
+    // Query operations
+    rpc GetBlockInfo(GetBlockInfoRequest) returns (ApiResponse);
+    rpc ListBlockErrors(ListBlockErrorsRequest) returns (ApiResponse);
+    
+    // Command operations
+    rpc PurgeBlocks(PurgeBlocksRequest) returns (ApiResponse);
+    rpc RetryBlockResync(RetryBlockResyncRequest) returns (ApiResponse);
+}
+
+// ============== Common Response ==============
+
+// Unified API response with trace_id
+message ApiResponse {
+    string trace_id = 1;
+    oneof data {
+        MultiNodeBlockInfoData block_info = 2;
+        MultiNodeBlockErrorsData block_errors = 3;
+        MultiNodePurgeResultData purge_result = 4;
+        MultiNodeResyncResultData resync_result = 5;
+    }
+}
+
+message MultiNodeBlockInfoData {
+    map<string, BlockInfoResult> results = 1;
+}
+
+message MultiNodeBlockErrorsData {
+    map<string, BlockErrorsResult> results = 1;
+}
+
+message MultiNodePurgeResultData {
+    map<string, PurgeResult> results = 1;
+}
+
+message MultiNodeResyncResultData {
+    map<string, ResyncResult> results = 1;
+}
+
+// ============== Query Requests ==============
+
+message GetBlockInfoRequest {
+    string node = 1; // Node ID or "*" for all nodes
+    string block_hash = 2;
+}
+
+message ListBlockErrorsRequest {
+    string node = 1; // Node ID or "*" for all nodes
+}
+
+// ============== Command Requests ==============
+
+message PurgeBlocksRequest {
+    string node = 1; // Node ID or "*" for all nodes
+    repeated string block_hashes = 2;
+}
+
+message RetryBlockResyncRequest {
+    string node = 1; // Node ID or "*" for all nodes
+    repeated string block_hashes = 2; // Empty = retry all
+    bool all = 3; // If true, retry all blocks
+}
+
+// ============== Messages ==============
+
+message BlockInfoResult {
+    oneof result {
+        BlockInfo info = 1;
+        string error = 2;
+    }
+}
+
+message BlockInfo {
+    string block_hash = 1;
+    int64 size = 2;
+    int64 refcount = 3;
+    repeated BlockVersionRef versions = 4;
+    repeated BlockUploadRef uploads = 5;
+}
+
+message BlockVersionRef {
+    string bucket_id = 1;
+    string key = 2;
+    string version_uuid = 3;
+    bool deleted = 4;
+    int64 block_offset = 5;
+}
+
+message BlockUploadRef {
+    string bucket_id = 1;
+    string key = 2;
+    string upload_id = 3;
+    int32 part_number = 4;
+    int64 block_offset = 5;
+}
+
+message BlockErrorsResult {
+    oneof result {
+        BlockErrors errors = 1;
+        string error = 2;
+    }
+}
+
+message BlockErrors {
+    repeated BlockError errors = 1;
+}
+
+message BlockError {
+    string block_hash = 1;
+    string error = 2;
+}
+
+message PurgeResult {
+    oneof result {
+        PurgeBlocksResult purge_result = 1;
+        string error = 2;
+    }
+}
+
+message PurgeBlocksResult {
+    int64 blocks_purged = 1;
+    int64 objects_deleted = 2;
+    int64 uploads_deleted = 3;
+}
+
+message ResyncResult {
+    oneof result {
+        RetryResyncResult resync_result = 1;
+        string error = 2;
+    }
+}
+
+message RetryResyncResult {
+    int64 blocks_retried = 1;
+}

@@ -1,0 +1,75 @@
+// Global Classes
+// 全域 CSS classes - 可直接在 HTML 使用
+
+@use "effects";
+
+// Feature Card (使用 glow-card mixin)
+.feature-card {
+    @include effects.glass-card;
+    padding: 20px;
+    height: 100%;
+    min-height: 200px;
+    background: var(--garage-surface-card);
+    border: 1px solid var(--garage-border);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        background: var(--garage-surface-hover);
+    }
+}
+
+// Card Content Container
+.card-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 16px;
+}
+
+// Card Title
+.card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--garage-text-primary);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+// ID Row
+.id-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+// Page Header
+.page-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+// Meta Item
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--garage-text-muted);
+
+    mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+    }
+}

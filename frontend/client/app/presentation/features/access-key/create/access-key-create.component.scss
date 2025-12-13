@@ -1,0 +1,112 @@
+@use "styles/cards";
+@use "styles/buttons";
+
+:host {
+    display: block;
+}
+
+// Header
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.header-action-btn {
+    color: var(--garage-text-secondary);
+    
+    &:hover {
+        color: var(--garage-text-primary);
+    }
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--garage-text-primary);
+}
+
+// Form
+.form-card {
+    @include cards.form-card;
+}
+
+mat-card-header {
+    margin-bottom: var(--space-md);
+}
+
+mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--garage-text-primary);
+    
+    mat-icon {
+        color: var(--garage-gradient-pink);
+    }
+}
+
+.full-width {
+    width: 100%;
+    margin-bottom: var(--space-md);
+}
+
+.checkbox-field {
+    margin-bottom: var(--space-lg);
+    padding: var(--space-sm) 0;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--garage-border);
+}
+
+.action-btn {
+    @include buttons.action-btn;
+    height: 40px; // Keep structural height as requested, could be variable if strict
+}
+
+.date-field-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.date-field {
+    flex: 1;
+}
+
+.clear-btn {
+    margin-top: var(--space-sm);
+    width: 32px;
+    height: 32px;
+    
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: var(--garage-text-muted);
+    }
+    
+    &:hover mat-icon {
+        color: var(--garage-status-error);
+    }
+}
+
+mat-spinner {
+    display: inline-block;
+}
+
+// Angular Material Overrides (via CSS Variables inheritance)
+.mat-mdc-form-field {
+    --mdc-outlined-text-field-container-shape: 8px;
+}

@@ -1,0 +1,254 @@
+syntax = "proto3";
+
+package object;
+
+// Object Service - gRPC API for S3 object management
+// 支援兩種模式：
+// 1. gRPC Streaming - 直接透過 gRPC 進行檔案上傳/下載
+// 2. PreSigned URL - 取得預簽名 URL 後，由客戶端直接與 S3 互動
+service ObjectService {
+    // ============ Query Operations ============
+    
+    // List objects in a bucket with pagination
+    rpc ListObjects(ListObjectsRequest) returns (ListObjectsResponse);
+    
+    // Get object metadata (HEAD)
+    rpc GetObjectMetadata(GetObjectMetadataRequest) returns (ObjectMetadataResponse);
+    
+    // ============ Streaming Operations ============
+    
+    // Upload object using bidirectional streaming
+    // Client sends metadata first, server responds with upload_id, then client sends chunks
+    // Server sends progress updates and final result
+    rpc UploadObject(stream UploadChunkRequest) returns (stream UploadChunkResponse);
+    
+    // Download object using server streaming
+    // Server sends metadata first, then file chunks
+    rpc DownloadObject(DownloadObjectRequest) returns (stream DownloadChunkResponse);
+    
+    // ============ PreSigned URL Operations ============
+    
+    // Get presigned URL for upload (PUT)
+    rpc GetUploadUrl(GetUploadUrlRequest) returns (PreSignedUrlResponse);
+    
+    // Get presigned URL for download (GET)
+    rpc GetDownloadUrl(GetDownloadUrlRequest) returns (PreSignedUrlResponse);
+    
+    // ============ Command Operations ============
+    
+    // Delete objects (supports single or batch delete)
+    rpc DeleteObject(DeleteObjectRequest) returns (DeleteObjectResponse);
+    
+    // Copy an object
+    rpc CopyObject(CopyObjectRequest) returns (CopyObjectResponse);
+    
+    // Abort a multipart upload
+    rpc AbortUpload(AbortUploadRequest) returns (AbortUploadResponse);
+}
+
+// ============== Responses ==============
+
+message ListObjectsResponse {
+    string trace_id = 1;
+    repeated ObjectInfo data = 2;
+    optional string next_continuation_token = 3;
+    bool is_truncated = 4;
+}
+
+message ObjectMetadataResponse {
+    string trace_id = 1;
+    ObjectMetadata data = 2;
+}
+
+message UploadObjectResponse {
+    string trace_id = 1;
+    UploadResult data = 2;
+}
+
+message DeleteObjectResponse {
+    string trace_id = 1;
+    repeated string deleted = 2;
+    repeated DeleteError errors = 3;
+}
+
+message CopyObjectResponse {
+    string trace_id = 1;
+    CopyResult data = 2;
+}
+
+message AbortUploadResponse {
+    string trace_id = 1;
+    bool success = 2;
+    string bucket = 3;
+    string key = 4;
+    string upload_id = 5;
+}
+
+message PreSignedUrlResponse {
+    string trace_id = 1;
+    PreSignedUrl data = 2;
+}
+
+// ============== Query Requests ==============
+
+message ListObjectsRequest {
+    string bucket = 1;
+    optional string prefix = 2;
+    optional string continuation_token = 3;
+    optional int32 max_keys = 4;
+}
+
+message GetObjectMetadataRequest {
+    string bucket = 1;
+    string key = 2;
+}
+
+// ============== Streaming Upload ==============
+
+// Upload request - first message must be metadata, followed by chunks
+message UploadChunkRequest {
+    oneof data {
+        // First message: upload metadata
+        UploadMetadata metadata = 1;
+        // Subsequent messages: file chunks
+        bytes chunk = 2;
+    }
+}
+
+message UploadMetadata {
+    string bucket = 1;
+    string key = 2;
+    string content_type = 3;
+    int64 content_length = 4;
+}
+
+// Upload response - server sends upload_id after receiving metadata, then final result
+message UploadChunkResponse {
+    string trace_id = 1;
+    oneof data {
+        // First response: upload initiated with upload_id
+        UploadInitiated initiated = 2;
+        // Progress update (optional)
+        UploadProgress progress = 3;
+        // Final response: upload completed
+        UploadResult result = 4;
+    }
+}
+
+// Sent after receiving metadata, before chunks
+message UploadInitiated {
+    string upload_id = 1;
+    string bucket = 2;
+    string key = 3;
+}
+
+// Optional progress update
+message UploadProgress {
+    int32 part_number = 1;
+    int64 bytes_uploaded = 2;
+    int64 total_bytes = 3;
+}
+
+// ============== Streaming Download ==============
+
+message DownloadObjectRequest {
+    string bucket = 1;
+    string key = 2;
+}
+
+// Download response - first message is metadata, followed by chunks
+message DownloadChunkResponse {
+    string trace_id = 1;
+    oneof data {
+        // First message: object metadata
+        DownloadMetadata metadata = 2;
+        // Subsequent messages: file chunks
+        bytes chunk = 3;
+    }
+}
+
+message DownloadMetadata {
+    string bucket = 1;
+    string key = 2;
+    string content_type = 3;
+    int64 content_length = 4;
+    string etag = 5;
+    string last_modified = 6;
+}
+
+// ============== PreSigned URL Requests ==============
+
+message GetUploadUrlRequest {
+    string bucket = 1;
+    string key = 2;
+    optional string content_type = 3;
+    optional int32 expires_in_seconds = 4;  // Default: 3600 (1 hour)
+}
+
+message GetDownloadUrlRequest {
+    string bucket = 1;
+    string key = 2;
+    optional int32 expires_in_seconds = 3;  // Default: 3600 (1 hour)
+}
+
+// ============== Command Requests ==============
+
+message DeleteObjectRequest {
+    string bucket = 1;
+    repeated string keys = 2;
+}
+
+message CopyObjectRequest {
+    string source_bucket = 1;
+    string source_key = 2;
+    string dest_bucket = 3;
+    string dest_key = 4;
+}
+
+message AbortUploadRequest {
+    string bucket = 1;
+    string key = 2;
+    string upload_id = 3;
+}
+
+// ============== Messages ==============
+
+message ObjectInfo {
+    string key = 1;
+    int64 size = 2;
+    string last_modified = 3;
+    string etag = 4;
+    string storage_class = 5;
+}
+
+message ObjectMetadata {
+    int64 content_length = 1;
+    string content_type = 2;
+    string etag = 3;
+    string last_modified = 4;
+}
+
+message UploadResult {
+    string bucket = 1;
+    string key = 2;
+    string etag = 3;
+    int64 size = 4;
+}
+
+message CopyResult {
+    string etag = 1;
+    string last_modified = 2;
+}
+
+message DeleteError {
+    string key = 1;
+    string code = 2;
+    string message = 3;
+}
+
+message PreSignedUrl {
+    string url = 1;
+    string method = 2; // GET or PUT
+    int64 expires_at = 3; // Unix timestamp
+    int32 expires_in_seconds = 4;
+}

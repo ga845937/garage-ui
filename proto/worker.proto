@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package worker;
+
+// Worker Service - gRPC API for worker operations
+service WorkerService {
+    // Query operations
+    rpc ListWorkers(ListWorkersRequest) returns (ApiResponse);
+    rpc GetWorkerInfo(GetWorkerInfoRequest) returns (ApiResponse);
+    rpc GetWorkerVariable(GetWorkerVariableRequest) returns (ApiResponse);
+    
+    // Command operations
+    rpc SetWorkerVariable(SetWorkerVariableRequest) returns (ApiResponse);
+}
+
+// ============== Common Response ==============
+
+// Unified API response with trace_id
+message ApiResponse {
+    string trace_id = 1;
+    oneof data {
+        MultiNodeWorkersData list_workers = 2;
+        MultiNodeWorkerInfoData worker_info = 3;
+        MultiNodeVariablesData worker_variables = 4;
+        MultiNodeSetVariableData set_variable = 5;
+    }
+}
+
+message MultiNodeWorkersData {
+    map<string, WorkersResult> results = 1;
+}
+
+message MultiNodeWorkerInfoData {
+    map<string, WorkerInfoResult> results = 1;
+}
+
+message MultiNodeVariablesData {
+    map<string, VariablesResult> results = 1;
+}
+
+message MultiNodeSetVariableData {
+    map<string, SetVariableResult> results = 1;
+}
+
+// ============== Query Requests ==============
+
+message ListWorkersRequest {
+    string node = 1; // Node ID or "*" for all nodes
+    bool busy_only = 2;
+    bool error_only = 3;
+}
+
+message GetWorkerInfoRequest {
+    string node = 1; // Node ID or "*" for all nodes
+    int64 worker_id = 2;
+}
+
+message GetWorkerVariableRequest {
+    string node = 1; // Node ID or "*" for all nodes
+    optional string variable = 2;  // Specific variable or all if not set
+}
+
+// ============== Command Requests ==============
+
+message SetWorkerVariableRequest {
+    string node = 1; // Node ID or "*" for all nodes
+    string variable = 2;
+    string value = 3;
+}
+
+// ============== Messages ==============
+
+message WorkersResult {
+    oneof result {
+        WorkersList workers = 1;
+        string error = 2;
+    }
+}
+
+message WorkersList {
+    repeated WorkerInfo workers = 1;
+}
+
+message WorkerInfo {
+    int64 id = 1;
+    string name = 2;
+    string state = 3;
+    optional string progress = 4;
+    int64 errors = 5;
+    int64 consecutive_errors = 6;
+    optional WorkerError last_error = 7;
+    optional int64 tranquility = 8;
+    optional string freeform = 9;
+}
+
+message WorkerError {
+    string message = 1;
+    int64 secs_ago = 2;
+}
+
+message WorkerInfoResult {
+    oneof result {
+        WorkerInfo info = 1;
+        string error = 2;
+    }
+}
+
+message VariablesResult {
+    oneof result {
+        WorkerVariables variables = 1;
+        string error = 2;
+    }
+}
+
+message WorkerVariables {
+    map<string, string> variables = 1;
+}
+
+message SetVariableResult {
+    oneof result {
+        VariableChangeInfo change = 1;
+        string error = 2;
+    }
+}
+
+message VariableChangeInfo {
+    string variable = 1;
+    string old_value = 2;
+    string new_value = 3;
+}

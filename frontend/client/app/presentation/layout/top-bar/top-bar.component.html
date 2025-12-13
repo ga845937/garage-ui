@@ -1,0 +1,145 @@
+<header class="top-bar">
+  <!-- Left Section -->
+  <div class="left-section">
+    <button mat-icon-button class="garage-home-btn" [routerLink]="'/' + settings_route.HOME">
+      <mat-icon>warehouse</mat-icon>
+    </button>
+    
+    <div class="divider"></div>
+    
+    <h1 class="page-title">
+      @if (layout_service.page_title_literal()) {
+        {{ layout_service.page_title_literal() }}
+      } @else {
+        {{ layout_service.page_title_key() | translate }}
+      }
+    </h1>
+    
+    <div class="context-actions">
+      @for (action of layout_service.context_actions(); track action.icon) {
+        <button 
+          mat-button 
+          [class]="'action-btn ' + (action.variant || 'default')"
+          (click)="action.action()"
+          [disabled]="action.disabled"
+        >
+          <mat-icon>{{ action.icon }}</mat-icon>
+          @if (action.label) {
+            <span>{{ action.label }}</span>
+          } @else if (action.label_key) {
+            <span>{{ action.label_key | translate }}</span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Right Section -->
+  <div class="right-section">
+    <!-- Task Progress -->
+    @if (task_service.active_tasks_count() > 0) {
+        <button 
+            mat-icon-button 
+            class="task-btn active" 
+            [matMenuTriggerFor]="taskMenu"
+            matTooltip="Task Progress"
+        >
+            <div class="spinner-ring"></div>
+            <span class="badge">{{ task_service.active_tasks_count() }}</span>
+            <mat-icon>sync</mat-icon>
+        </button>
+    } @else {
+         <button mat-icon-button class="task-btn" matTooltip="No active tasks">
+            <mat-icon>sync</mat-icon>
+        </button>
+    }
+    
+    <mat-menu #taskMenu="matMenu" class="task-menu-panel">
+        <div class="task-dropdown" (click)="$event.stopPropagation()">
+            <div class="task-header">
+                <h3>{{ 'task.progress' | translate }}</h3>
+                <span class="count">{{ task_service.active_tasks_count() }} {{ 'task.running' | translate }}</span>
+            </div>
+            
+            <div class="task-list">
+                @for (task of task_service.tasks(); track task.id) {
+                    <div 
+                        class="task-item" 
+                        [class.clickable]="task.bucket_id"
+                        [class.cancelled]="task.status === 'cancelled'"
+                        (click)="on_task_click(task)"
+                    >
+                        <mat-icon class="task-icon">
+                            @if (task.status === 'cancelled') {
+                                cancel
+                            } @else {
+                                {{ task.type === 'upload' ? 'upload' : 'download' }}
+                            }
+                        </mat-icon>
+                        <div class="task-info">
+                            <div class="task-name">{{ task.filename }}</div>
+                            @if (task.bucket_name) {
+                                <div class="task-bucket">{{ task.bucket_name }}</div>
+                            }
+                            @if (task.status !== 'cancelled') {
+                                <mat-progress-bar mode="determinate" [value]="task.progress"></mat-progress-bar>
+                            }
+                        </div>
+                        @if (task.status === 'running') {
+                            <button 
+                                mat-icon-button 
+                                class="cancel-btn"
+                                (click)="on_cancel_task($event, task.id)"
+                                matTooltip="{{ 'common.cancel' | translate }}"
+                            >
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        } @else {
+                            <div class="task-status">
+                                @if (task.status === 'cancelled') {
+                                    {{ 'task.cancelled' | translate }}
+                                } @else {
+                                    {{ task.progress }}%
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                @if (task_service.tasks().length === 0) {
+                    <div class="empty-state">{{ 'task.no_active_tasks' | translate }}</div>
+                }
+            </div>
+        </div>
+    </mat-menu>
+
+    <div class="divider"></div>
+
+    <a 
+      mat-icon-button 
+      matTooltip="License" 
+      [href]="license_url" 
+      target="_blank" 
+      rel="noopener noreferrer"
+    >
+      <mat-icon>copyright</mat-icon>
+    </a>
+
+    <a 
+      mat-icon-button 
+      matTooltip="GitHub" 
+      [href]="github_url" 
+      target="_blank" 
+      rel="noopener noreferrer"
+    >
+      <mat-icon>code</mat-icon>
+    </a>
+
+    <button mat-icon-button matTooltip="Language" (click)="toggle_language()">
+      <mat-icon>language</mat-icon>
+    </button>
+
+    <button mat-icon-button matTooltip="Search">
+      <mat-icon>search</mat-icon>
+    </button>
+  </div>
+</header>

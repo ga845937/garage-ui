@@ -1,0 +1,58 @@
+<div class="dialog-container">
+    <!-- Header -->
+    <div class="dialog-header">
+        <h2>{{ 'file.upload_dialog_title' | translate }}</h2>
+        <button mat-icon-button (click)="close()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <!-- Drop Zone -->
+    <div 
+        class="drop-zone" 
+        [class.dragging]="is_dragging()"
+        (dragover)="on_drag_over($event)"
+        (dragleave)="on_drag_leave($event)"
+        (drop)="on_drop($event)"
+    >
+        <div class="drop-content">
+            <div class="icon-wrapper">
+                <mat-icon>cloud_upload</mat-icon>
+            </div>
+            <p class="drop-text">{{ 'file.drop_files_or_folders' | translate }}</p>
+        </div>
+    </div>
+
+    <!-- Separator -->
+    <div class="separator">
+        <span>{{ 'common.or' | translate }}</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button mat-stroked-button (click)="open_file_picker()">
+            <mat-icon>insert_drive_file</mat-icon>
+            {{ 'file.upload_files_btn' | translate }}
+        </button>
+        <button mat-stroked-button (click)="open_folder_picker()">
+            <mat-icon>folder</mat-icon>
+            {{ 'file.upload_folder_btn' | translate }}
+        </button>
+    </div>
+
+    <!-- Hidden Inputs -->
+    <input 
+        type="file" 
+        #fileInput 
+        multiple 
+        (change)="on_files_selected($event)" 
+        style="display: none"
+    />
+    <input 
+        type="file" 
+        #folderInput 
+        webkitdirectory 
+        (change)="on_folder_selected($event)" 
+        style="display: none"
+    />
+</div>

@@ -1,0 +1,163 @@
+@use "styles/utilities";
+
+:host {
+    display: block;
+}
+
+// Header
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.header-action-btn {
+    color: var(--garage-text-secondary);
+    
+    &:hover {
+        color: var(--garage-text-primary);
+    }
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--garage-text-primary);
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+}
+
+.single-card-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+mat-card {
+    background: var(--garage-surface-card);
+    border: 1px solid var(--garage-border);
+    border-radius: 16px;
+}
+
+mat-card-header {
+    margin-bottom: var(--space-md);
+}
+
+mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--garage-text-primary);
+    
+    mat-icon {
+        color: var(--garage-gradient-pink);
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+}
+
+// Detail Rows
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--garage-border);
+    min-height: 52px;
+}
+
+.row:last-child {
+    border-bottom: none;
+}
+
+.label {
+    color: var(--garage-text-secondary);
+    font-size: 0.9rem;
+    min-width: 140px;
+}
+
+.value {
+    color: var(--garage-text-primary);
+    display: flex;
+    align-items: center;
+}
+
+.value-with-action {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.secret-value {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+code {
+    @include utilities.id-badge;
+    font-size: 0.85rem;
+    padding: var(--space-sm) 12px;
+    color: var(--garage-text-primary);
+    border: 1px solid var(--garage-border);
+}
+
+.copy-btn {
+    @include utilities.copy-btn(32px, 16px);
+}
+
+.clear-btn {
+    @include utilities.icon-button(32px, 16px);
+    
+    &:hover mat-icon {
+        color: var(--garage-status-error);
+    }
+}
+
+/* Form Styles */
+.compact-field, .datetime-field {
+    width: 240px;
+}
+
+// Angular Material Overrides
+.compact-field .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+.date-field-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.checkbox-row {
+    padding: 18px 0;
+}
+
+.mat-mdc-form-field {
+    --mdc-outlined-text-field-container-shape: 8px;
+}
+
+/* Status Icons */
+mat-icon.success {
+    color: var(--garage-status-success);
+}
+
+mat-icon.muted {
+    color: var(--garage-text-muted);
+}
+

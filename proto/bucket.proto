@@ -1,0 +1,193 @@
+syntax = "proto3";
+
+package bucket;
+
+import "utility.proto";
+
+// Bucket Service - gRPC API for bucket management
+service BucketService {
+    // Query operations
+    rpc ListBucket(ListBucketsRequest) returns (ListBucketsResponse);
+    rpc ReadBucket(ReadBucketRequest) returns (BucketResponse);
+
+    // Command operations
+    rpc CreateBucket(CreateBucketRequest) returns (BucketResponse);
+    rpc UpdateBucket(UpdateBucketRequest) returns (BucketResponse);
+    rpc DeleteBucket(DeleteBucketRequest) returns (DeleteBucketResponse);
+
+    // Bucket alias operations (batch operations)
+    rpc AddBucketAlias(AddBucketAliasRequest) returns (BucketAliasResponse);
+    rpc RemoveBucketAlias(RemoveBucketAliasRequest) returns (BucketAliasResponse);
+
+    // Bucket permission operations (always accepts array)
+    rpc AllowBucketKey(BucketKeyPermissionRequest) returns (BucketKeyPermissionResponse);
+    rpc DenyBucketKey(BucketKeyPermissionRequest) returns (BucketKeyPermissionResponse);
+}
+
+// ============== Responses ==============
+
+message ListBucketsResponse {
+    string trace_id = 1;
+    repeated BucketListItem data = 2;
+    int32 total = 3;
+}
+
+message BucketResponse {
+    string trace_id = 1;
+    Bucket data = 2;
+}
+
+message DeleteBucketResponse {
+    string trace_id = 1;
+    repeated string id = 2;
+}
+
+message BucketAliasResponse {
+    string trace_id = 1;
+    repeated BucketAliasResult results = 2;
+}
+
+// ============== Query Requests ==============
+
+message ListBucketsRequest {
+    utility.Pagination pagination = 1;
+}
+
+message ReadBucketRequest {
+    string id = 1;
+}
+
+// ============== Command Requests ==============
+
+message CreateBucketRequest {
+    optional string global_alias = 1;
+    optional LocalAliasInput local_alias = 2;
+    optional Quotas quotas = 3;
+    optional WebsiteConfig website_config = 4;
+}
+
+message UpdateBucketRequest {
+    string id = 1;
+    optional utility.NullableBool website_access = 2;
+    optional WebsiteConfig website_config = 3;
+    optional Quotas quotas = 4;
+}
+
+message DeleteBucketRequest {
+    repeated string id = 1;
+}
+
+// ============== Bucket Alias Requests ==============
+
+message AddBucketAliasRequest {
+    repeated BucketAliasItem items = 1;
+}
+
+message RemoveBucketAliasRequest {
+    repeated BucketAliasItem items = 1;
+}
+
+message BucketAliasItem {
+    string bucket_id = 1;
+    oneof alias_type {
+        string global_alias = 2;
+        LocalAliasInput local_alias = 3;
+    }
+}
+
+// ============== Bucket Permission Requests ==============
+
+message BucketKeyPermissionRequest {
+    repeated BucketKeyPermissionItem items = 1;
+}
+
+message BucketKeyPermissionItem {
+    string bucket_id = 1;
+    string access_key_id = 2;
+    BucketKeyPermissions permissions = 3;
+}
+
+// ============== Bucket Permission Responses ==============
+
+message BucketKeyPermissionResponse {
+    string trace_id = 1;
+    repeated BucketKeyPermissionResult results = 2;
+}
+
+message BucketKeyPermissionResult {
+    string bucket_id = 1;
+    string access_key_id = 2;
+    bool success = 3;
+    optional string error = 4;
+    optional Bucket bucket = 5;
+}
+
+message BucketAliasResult {
+    string bucket_id = 1;
+    string alias = 2;
+    bool success = 3;
+    optional string error = 4;
+    optional Bucket bucket = 5;
+}
+
+// ============== Messages ==============
+
+// List item (簡化版)
+message BucketListItem {
+    string id = 1;
+    repeated string global_aliases = 2;
+    repeated LocalAlias local_aliases = 3;
+    int64 objects = 4;
+    int64 bytes = 5;
+    string created = 6;
+}
+
+// Full bucket detail
+message Bucket {
+    string id = 1;
+    repeated string global_aliases = 2;
+    repeated LocalAlias local_aliases = 3;
+    bool website_access = 4;
+    optional string website_config = 5;
+    repeated BucketKey keys = 6;
+    Quotas quotas = 7;
+    int64 objects = 8;
+    int64 bytes = 9;
+    string created = 10;
+}
+
+message LocalAlias {
+    string access_key_id = 1;
+    string alias = 2;
+}
+
+message BucketKey {
+    string access_key_id = 1;
+    string name = 2;
+    BucketKeyPermissions permissions = 3;
+    bool bucket_local_aliases = 4;
+}
+
+message BucketKeyPermissions {
+    bool read = 1;
+    bool write = 2;
+    bool owner = 3;
+}
+
+message Quotas {
+    optional int64 max_size = 1;
+    optional int64 max_objects = 2;
+}
+
+message WebsiteConfig {
+    optional string index_document = 1;
+    optional string error_document = 2;
+}
+
+// ============== Input Messages ==============
+
+message LocalAliasInput {
+    string access_key_id = 1;
+    string alias = 2;
+    optional BucketKeyPermissions permissions = 3;
+}

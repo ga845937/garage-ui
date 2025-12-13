@@ -1,0 +1,35 @@
+@use "styles/cards";
+
+// .page-header is global
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 400;
+}
+
+.form-card {
+    @include cards.form-card;
+}
+
+.full-width {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+mat-spinner {
+    display: inline-block;
+}

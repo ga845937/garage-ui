@@ -1,0 +1,47 @@
+// CSS Variables
+// 全域 CSS 變數定義
+
+:root {
+    /* Palette */
+    --garage-bg: #000000;
+    --garage-surface: #16161d;
+    --garage-surface-card: #1a1a2e;
+    --garage-surface-hover: #252537;
+    
+    /* Text */
+    --garage-text-primary: #ffffff;
+    --garage-text-secondary: rgba(255, 255, 255, 0.6);
+    --garage-text-muted: rgba(255, 255, 255, 0.4);
+
+    /* Borders */
+    --garage-border: rgba(255, 255, 255, 0.1);
+    --garage-border-glow: rgba(255, 255, 255, 0.15);
+
+    /* Status */
+    --garage-status-error: #ef4444;
+    --garage-status-warning: #f59e0b;
+    --garage-status-success: #4ade80;
+    
+    /* Semantic Aliases */
+    --garage-danger: var(--garage-status-error);
+    --garage-danger-rgb: 239, 68, 68;
+
+    /* Gradients */
+    --garage-gradient-pink: #E40035;
+    --garage-gradient-magenta: #F20755;
+    --garage-gradient-purple: #9717E7;
+    --garage-gradient-blue: #6C00F5;
+    --garage-gradient-main: linear-gradient(135deg, var(--garage-gradient-pink), var(--garage-gradient-magenta), var(--garage-gradient-purple), var(--garage-gradient-blue));
+    --garage-gradient-glow: linear-gradient(135deg, rgba(228, 0, 53, 0.5), rgba(151, 23, 231, 0.5));
+
+    /* Spacing System */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* Layout */
+    --layout-header-height: 100px;
+    --layout-footer-height: 120px;
+}

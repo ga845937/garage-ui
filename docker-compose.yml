@@ -1,0 +1,29 @@
+services:
+  # Unified Service (Rust Backend + Node Frontend)
+  garage-ui:
+    image: garage-ui
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "50051:50051"
+    environment:
+      # --- Frontend Config ---
+      - HTTP_PORT=3000
+      # Internal communication via localhost in the same container
+      - GRPC_URI=http://localhost:50051
+      # Redis usually external
+      - REDIS_URI=${REDIS_URI}
+      
+      # --- Backend Config ---
+      - RUST_LOG=info,garage_ui=debug
+      - GRPC_SERVER_ADDR=0.0.0.0:50051
+      # Garage API Configuration
+      - GARAGE_API_URL=${GARAGE_API_URL}
+      - GARAGE_API_KEY=${GARAGE_API_KEY}
+      # S3 Configuration
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}

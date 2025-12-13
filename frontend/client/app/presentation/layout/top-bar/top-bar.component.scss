@@ -1,0 +1,279 @@
+@use "styles/effects";
+@use "styles/buttons";
+
+:host {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 10px 24px 12px 24px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  @include effects.glass-card(0.7, 12px);
+  border-radius: 16px;
+  padding: 8px 16px;
+  height: 64px;
+  position: relative;
+}
+
+/* Glow Effect at bottom - dock-like gradient */
+.top-bar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--garage-gradient-purple) 10%,
+    var(--garage-gradient-pink) 30%,
+    var(--garage-gradient-blue) 50%,
+    var(--garage-gradient-pink) 70%,
+    var(--garage-gradient-purple) 90%,
+    transparent 100%
+  );
+  opacity: 1;
+}
+
+.left-section, .right-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--garage-border);
+  margin: 0 8px;
+}
+
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--garage-text-primary);
+  white-space: nowrap;
+}
+
+.context-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+.garage-home-btn {
+  color: var(--garage-gradient-pink);
+}
+
+.garage-home-btn mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+}
+
+/* Action Buttons */
+.action-btn {
+  @include buttons.action-btn;
+}
+
+/* Task Progress Button */
+.task-btn {
+    color: var(--garage-text-secondary);
+    position: relative;
+}
+
+.task-btn.active {
+    color: var(--garage-gradient-blue);
+}
+
+.spinner-ring {
+    position: absolute;
+    inset: 4px;
+    border: 2px solid transparent;
+    border-top-color: var(--garage-gradient-pink);
+    border-right-color: var(--garage-gradient-purple);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: var(--garage-gradient-pink);
+    color: white;
+    font-size: 10px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Icons */
+.right-section button {
+  color: var(--garage-text-secondary);
+}
+.right-section button:hover {
+  color: var(--garage-text-primary);
+}
+
+/* Task Dropdown Styles */
+::ng-deep .task-menu-panel {
+    &.mat-mdc-menu-panel {
+        max-width: none !important;
+        overflow: visible !important;
+    }
+    
+    .mat-mdc-menu-content {
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+}
+
+.task-dropdown {
+    width: 360px;
+    padding: 16px;
+    background: var(--garage-surface-card);
+    color: var(--garage-text-primary);
+    box-sizing: border-box;
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--garage-border);
+    
+    h3 { 
+        margin: 0; 
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .count { 
+        font-size: 0.75rem; 
+        color: var(--garage-text-secondary);
+        background: var(--garage-surface-hover);
+        padding: 2px 8px;
+        border-radius: 12px;
+    }
+}
+
+.task-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    padding: 10px;
+    transition: background-color 0.2s ease;
+    background: var(--garage-surface);
+    
+    &:last-child {
+        margin-bottom: 0;
+    }
+    
+    &.clickable {
+        cursor: pointer;
+        
+        &:hover {
+            background: var(--garage-surface-hover);
+        }
+    }
+    
+    .task-icon { 
+        color: var(--garage-gradient-blue);
+        flex-shrink: 0;
+    }
+    
+    .task-info {
+        flex: 1;
+        min-width: 0;
+        
+        .task-name { 
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 2px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+        }
+        
+        .task-bucket {
+            font-size: 0.75rem;
+            color: var(--garage-text-secondary);
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        mat-progress-bar {
+            height: 4px;
+            border-radius: 2px;
+        }
+    }
+    
+    .task-status { 
+        font-size: 0.75rem; 
+        color: var(--garage-text-secondary); 
+        min-width: 36px; 
+        text-align: right;
+        flex-shrink: 0;
+    }
+    
+    .cancel-btn {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        color: var(--garage-text-secondary);
+        
+        &:hover {
+            color: var(--garage-danger);
+        }
+        
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+        }
+    }
+    
+    &.cancelled {
+        opacity: 0.6;
+        
+        .task-icon {
+            color: var(--garage-text-secondary);
+        }
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 24px;
+    color: var(--garage-text-secondary);
+    font-size: 0.875rem;
+}

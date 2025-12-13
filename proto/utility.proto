@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package utility;
+
+// ============================================================
+// Pagination & Date Range
+// ============================================================
+
+message Pagination {
+    int32 page = 1;
+    int32 page_size = 2;
+}
+
+message DateRange {
+    string start_date = 1; // RFC 3339 format
+    string end_date = 2; // RFC 3339 format
+}
+
+// ============================================================
+// Nullable Wrappers（用於 Update 操作的三態語義）
+// ============================================================
+//
+// 對應 Rust 的 UpdateField<T> 三態語義：
+//
+// | Proto 狀態                      | Rust UpdateField   | 說明           |
+// |---------------------------------|--------------------|----------------|
+// | 欄位未設定（field not present） | NoChange           | 不更新此欄位   |
+// | 欄位已設定但 value 為空         | Clear              | 清除此欄位     |
+// | 欄位已設定且 value 有值         | Set(value)         | 設為新值       |
+//
+// 範例：UpdateKeyRequest.expiration
+// - 未傳 expiration 欄位         → NoChange（保持原值）
+// - 傳 expiration: {}            → Clear（清除過期時間，設為永不過期）
+// - 傳 expiration: {value: "..."} → Set（設定新的過期時間）
+//
+// ============================================================
+
+message NullableString {
+    optional string value = 1;
+}
+
+message NullableNumber {
+    optional int64 value = 1;
+}
+
+message NullableBool {
+    optional bool value = 1;
+}

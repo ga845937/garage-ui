@@ -1,0 +1,71 @@
+<div class="key-list-container">
+	<div class="search-box">
+		<mat-form-field appearance="outline" class="full-width density-sm">
+			<mat-icon matPrefix>search</mat-icon>
+			<input
+				matInput
+				[formControl]="search_control"
+				[placeholder]="i18n.t('common.search')"
+			/>
+		</mat-form-field>
+	</div>
+
+	<div class="list-header">
+		<div class="col-name">{{ i18n.t("access_key.key_info") }}</div>
+		<div class="col-perms">{{ i18n.t("bucket.permission.key_list") }}</div>
+	</div>
+
+	<div class="scroll-container" (scroll)="on_scroll($event)">
+		@if (key_list().length === 0 && !loading()) {
+		<div class="empty-state">
+			<p>{{ i18n.t("bucket.permission.no_keys") }}</p>
+		</div>
+		}
+
+		@for (key of key_list(); track key.id) {
+		<div class="key-row" [class.selected]="key.selected">
+			<div class="col-name">
+				<div class="key-icon">
+					<mat-icon>key</mat-icon>
+				</div>
+				<div class="key-info">
+					<span class="key-name">{{ key.display_name }}</span>
+					<span class="key-id">{{ key.id }}</span>
+				</div>
+			</div>
+
+			<div class="col-perms">
+				<!-- Owner -->
+				<div
+					class="perm-badge owner"
+					[class.active]="key.permissions.owner"
+					[class.inactive]="!key.permissions.owner"
+					(click)="toggle_permission(key.id, 'owner')"
+				>
+					{{ i18n.t("bucket.permission.owner") }}
+				</div>
+
+				<!-- Read -->
+				<div
+					class="perm-badge read"
+					[class.active]="key.permissions.read"
+					[class.inactive]="!key.permissions.read"
+					(click)="toggle_permission(key.id, 'read')"
+				>
+					{{ i18n.t("bucket.permission.read") }}
+				</div>
+
+				<!-- Write -->
+				<div
+					class="perm-badge write"
+					[class.active]="key.permissions.write"
+					[class.inactive]="!key.permissions.write"
+					(click)="toggle_permission(key.id, 'write')"
+				>
+					{{ i18n.t("bucket.permission.write") }}
+				</div>
+			</div>
+		</div>
+		}
+	</div>
+</div>

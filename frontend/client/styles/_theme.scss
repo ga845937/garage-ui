@@ -1,0 +1,51 @@
+@use "@angular/material" as mat;
+
+// 自訂色彩
+$primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+$accent: mat.m2-define-palette(mat.$m2-cyan-palette);
+
+// Dark Theme
+$dark-theme: mat.m2-define-dark-theme(
+	(
+		color: (
+			primary: $primary,
+			accent: $accent,
+		),
+		typography: mat.m2-define-typography-config(),
+		density: 0,
+	)
+);
+
+// Light Theme
+$light-theme: mat.m2-define-light-theme(
+	(
+		color: (
+			primary: $primary,
+			accent: $accent,
+		),
+		typography: mat.m2-define-typography-config(),
+		density: 0,
+	)
+);
+
+// 預設 Dark Theme
+:root {
+	@include mat.core();
+	@include mat.all-component-themes($dark-theme);
+}
+
+// 跟隨系統偏好
+@media (prefers-color-scheme: light) {
+	:root {
+		@include mat.all-component-colors($light-theme);
+	}
+}
+
+// 手動切換主題類別
+.light-theme {
+	@include mat.all-component-colors($light-theme);
+}
+
+.dark-theme {
+	@include mat.all-component-colors($dark-theme);
+}

@@ -1,0 +1,107 @@
+<form [formGroup]="form" (ngSubmit)="on_submit()">
+	<!-- ID Row (Always Read-only) -->
+	<div class="field-row">
+		<mat-form-field appearance="outline" class="full-width">
+			<mat-label>{{ 'access_key.id' | translate }}</mat-label>
+			<input matInput [value]="access_key.id" disabled />
+			<button
+				mat-icon-button
+				matSuffix
+				class="copy-btn"
+				(click)="on_copy(access_key.id)"
+				type="button"
+				[matTooltip]="'common.copy' | translate"
+			>
+				<mat-icon>content_copy</mat-icon>
+			</button>
+		</mat-form-field>
+	</div>
+
+	<!-- Name Field (Editable based on input) -->
+	<div class="field-row">
+		<mat-form-field appearance="outline" class="full-width">
+			<mat-label>{{ 'access_key.name' | translate }}</mat-label>
+			<input matInput formControlName="name" [readonly]="!editable" />
+			@if (name_error && editable) {
+				<mat-error>{{ name_error }}</mat-error>
+			}
+		</mat-form-field>
+	</div>
+
+	<!-- Secret Access Key Row (Always Read-only, with toggle) -->
+	@if (access_key.secret_access_key) {
+		<div class="field-row">
+			<mat-form-field appearance="outline" class="full-width">
+				<mat-label>
+					{{ (editable ? 'access_key.secret' : 'access_key.secret_key') | translate }}
+				</mat-label>
+				<input matInput [value]="show_secret ? access_key.secret_access_key : '••••••••••••••••••••••••'" disabled />
+				<div matSuffix class="suffix-actions">
+					<button
+						mat-icon-button
+						class="copy-btn"
+						(click)="on_toggle_secret()"
+						type="button"
+						[matTooltip]="(show_secret ? 'common.hide' : 'common.show') | translate"
+					>
+						<mat-icon>{{ show_secret ? 'visibility_off' : 'visibility' }}</mat-icon>
+					</button>
+					@if (show_secret) {
+						<button
+							mat-icon-button
+							class="copy-btn"
+							(click)="on_copy(access_key.secret_access_key)"
+							type="button"
+							[matTooltip]="'access_key.copy_secret' | translate"
+						>
+							<mat-icon>content_copy</mat-icon>
+						</button>
+					}
+				</div>
+			</mat-form-field>
+		</div>
+	}
+
+	<!-- Expiration Field -->
+	<div class="field-row">
+		@if (editable) {
+			<app-datetime-picker
+				[label]="'access_key.expiration' | translate"
+				[value]="form.get('expiration')?.value"
+				(value_change)="on_expiration_change($event)"
+			></app-datetime-picker>
+			@if (expiration_error) {
+				<div class="error-message">{{ expiration_error }}</div>
+			}
+		} @else {
+			<mat-form-field appearance="outline" class="full-width">
+				<mat-label>{{ 'access_key.expiration' | translate }}</mat-label>
+				<input 
+					matInput 
+					[value]="access_key.expiration_date ? (access_key.expiration_date | date : 'yyyy-MM-dd HH:mm') : ('access_key.never_expires' | translate)" 
+					disabled 
+				/>
+			</mat-form-field>
+		}
+	</div>
+
+	<!-- Allow Create Bucket Field -->
+	<div class="field-row toggle-field">
+		<span class="toggle-label">{{ 'access_key.allow_create_bucket' | translate }}</span>
+		@if (editable) {
+			<mat-slide-toggle formControlName="allow_create_bucket"></mat-slide-toggle>
+		} @else {
+			<span class="toggle-value">
+				{{ access_key.allow_create_bucket ? ('common.enabled' | translate) : ('common.disabled' | translate) }}
+			</span>
+		}
+	</div>
+
+	<!-- Created Row (Always Read-only) -->
+	<div class="field-row">
+		<mat-form-field appearance="outline" class="full-width">
+			<mat-label>{{ 'common.created' | translate }}</mat-label>
+			<input matInput [value]="access_key.created_date | date : 'yyyy-MM-dd HH:mm'" disabled />
+		</mat-form-field>
+	</div>
+</form>

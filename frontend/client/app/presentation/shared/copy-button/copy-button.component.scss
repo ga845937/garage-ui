@@ -1,0 +1,9 @@
+@use "styles/utilities";
+
+:host {
+    display: inline-flex;
+}
+
+.copy-btn {
+    @include utilities.copy-btn;
+}

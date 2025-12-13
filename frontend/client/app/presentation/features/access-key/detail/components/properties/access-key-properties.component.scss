@@ -1,0 +1,79 @@
+:host {
+    display: block;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.field-row {
+    width: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+// Date field row with clear button (used in datetime-picker usually, but good to have context)
+.date-field-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+// Toggle field (slide toggle)
+.toggle-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--garage-border);
+    
+    .toggle-label {
+        color: var(--garage-text-primary);
+        font-size: 0.9rem;
+    }
+    
+    .toggle-value {
+        color: var(--garage-text-secondary);
+        font-size: 0.9rem;
+    }
+}
+
+// Suffix actions container for multiple buttons
+.suffix-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+// Copy button styling
+.copy-btn mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--garage-text-muted);
+}
+
+.copy-btn:hover mat-icon {
+    color: var(--garage-text-primary);
+}
+
+// Material form field overrides for consistent sizing
+::ng-deep .mat-mdc-form-field {
+    --mdc-outlined-text-field-container-shape: 8px;
+}
+
+// Disabled input styling to look more like read-only
+::ng-deep .mat-mdc-input-element:disabled {
+    color: var(--garage-text-primary);
+    -webkit-text-fill-color: var(--garage-text-primary);
+}
+
+.error-message {
+    color: var(--garage-danger);
+    font-size: 0.8rem;
+    margin-top: 4px;
+}

@@ -1,0 +1,184 @@
+syntax = "proto3";
+
+package cluster;
+
+// Cluster Service - gRPC API for cluster management
+service ClusterService {
+    // Query operations
+    rpc GetClusterStatus(GetClusterStatusRequest) returns (ApiResponse);
+    rpc GetClusterHealth(GetClusterHealthRequest) returns (ApiResponse);
+    rpc GetClusterLayout(GetClusterLayoutRequest) returns (ApiResponse);
+    rpc GetLayoutHistory(GetLayoutHistoryRequest) returns (ApiResponse);
+    rpc PreviewLayoutChanges(PreviewLayoutChangesRequest) returns (ApiResponse);
+    
+    // Command operations
+    rpc ConnectNodes(ConnectNodesRequest) returns (ApiResponse);
+    rpc UpdateLayout(UpdateLayoutRequest) returns (ApiResponse);
+    rpc ApplyLayout(ApplyLayoutRequest) returns (ApiResponse);
+    rpc RevertLayout(RevertLayoutRequest) returns (ApiResponse);
+    rpc SkipDeadNodes(SkipDeadNodesRequest) returns (ApiResponse);
+}
+
+// ============== Common Response ==============
+
+// Unified API response with trace_id
+message ApiResponse {
+    string trace_id = 1;
+    oneof data {
+        ClusterStatusData cluster_status = 2;
+        ClusterHealthData cluster_health = 3;
+        ClusterLayoutData cluster_layout = 4;
+        LayoutHistoryData layout_history = 5;
+        ApplyLayoutResultData preview_layout = 6;
+        ConnectNodesData connect_nodes = 7;
+        ClusterLayoutData update_layout = 8;
+        ApplyLayoutResultData apply_layout = 9;
+        ClusterLayoutData revert_layout = 10;
+        SkipDeadNodesData skip_dead_nodes = 11;
+    }
+}
+
+message ClusterStatusData {
+    int64 layout_version = 1;
+    repeated ClusterNode nodes = 2;
+}
+
+message ClusterHealthData {
+    string status = 1;
+    int32 known_nodes = 2;
+    int32 connected_nodes = 3;
+    int32 storage_nodes = 4;
+    int32 storage_nodes_ok = 5;
+    int32 partitions = 6;
+    int32 partitions_quorum = 7;
+    int32 partitions_all_ok = 8;
+}
+
+message ClusterLayoutData {
+    int64 version = 1;
+    repeated LayoutRole roles = 2;
+    repeated StagedRoleChange staged_role_changes = 3;
+    LayoutParameters parameters = 4;
+}
+
+message LayoutHistoryData {
+    repeated LayoutVersion versions = 1;
+    UpdateTracker update_tracker = 2;
+}
+
+message ApplyLayoutResultData {
+    int64 current_layout_version = 1;
+    repeated PartitionInfo partition_info = 2;
+}
+
+message ConnectNodesData {
+    repeated ConnectNodeResult results = 1;
+}
+
+message SkipDeadNodesData {
+    int64 current_layout_version = 1;
+    repeated PartitionInfo partition_info = 2;
+}
+
+// ============== Query Requests ==============
+
+message GetClusterStatusRequest {}
+
+message GetClusterHealthRequest {}
+
+message GetClusterLayoutRequest {}
+
+message GetLayoutHistoryRequest {}
+
+message PreviewLayoutChangesRequest {}
+
+// ============== Command Requests ==============
+
+message ConnectNodesRequest {
+    repeated string node_addresses = 1;
+}
+
+message UpdateLayoutRequest {
+    repeated LayoutRoleChange role_changes = 1;
+}
+
+message LayoutRoleChange {
+    string node_id = 1;
+    optional string zone = 2;
+    optional int64 capacity = 3;
+    repeated string tags = 4;
+    bool remove = 5;
+}
+
+message ApplyLayoutRequest {
+    int64 version = 1;
+}
+
+message RevertLayoutRequest {}
+
+message SkipDeadNodesRequest {
+    int64 version = 1;
+    bool allow_missing_data = 2;
+}
+
+// ============== Messages ==============
+
+message ClusterNode {
+    string id = 1;
+    string role = 2;
+    optional string addr = 3;
+    string hostname = 4;
+    bool is_up = 5;
+    int64 last_seen_secs_ago = 6;
+    bool cluster_layout_current = 7;
+    optional int64 cluster_layout_staging = 8;
+}
+
+message LayoutRole {
+    string id = 1;
+    string zone = 2;
+    int64 capacity = 3;
+    repeated string tags = 4;
+}
+
+message StagedRoleChange {
+    string id = 1;
+    optional LayoutRole role = 2;
+    bool remove = 3;
+}
+
+message LayoutParameters {
+    ZoneRedundancy zone_redundancy = 1;
+}
+
+message ZoneRedundancy {
+    oneof value {
+        int32 fixed = 1;
+        bool maximum = 2;
+    }
+}
+
+message ConnectNodeResult {
+    bool success = 1;
+    optional string error = 2;
+}
+
+message PartitionInfo {
+    int32 partition = 1;
+    repeated string nodes = 2;
+}
+
+message LayoutVersion {
+    int64 version = 1;
+    string update_time = 2;
+}
+
+message UpdateTracker {
+    repeated NodeUpdateProgress nodes = 1;
+}
+
+message NodeUpdateProgress {
+    string node_id = 1;
+    optional int64 sync_version = 2;
+    optional int64 write_version = 3;
+}

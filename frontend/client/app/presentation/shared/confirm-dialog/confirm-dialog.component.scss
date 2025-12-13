@@ -1,0 +1,67 @@
+.dialog-container {
+    min-width: 360px;
+    max-width: 480px;
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-sm);
+}
+
+.dialog-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+}
+
+.danger .dialog-icon {
+    color: var(--garage-status-error);
+}
+
+.warning .dialog-icon {
+    color: var(--garage-status-warning);
+}
+
+.info .dialog-icon {
+    color: var(--garage-gradient-purple);
+}
+
+h2[mat-dialog-title] {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--garage-text-primary);
+}
+
+mat-dialog-content {
+    color: var(--garage-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    padding: var(--space-md) 0;
+}
+
+mat-dialog-content p {
+    margin: 0;
+}
+
+mat-dialog-actions {
+    padding-top: var(--space-md);
+    gap: var(--space-md);
+}
+
+.confirm-btn.danger {
+    background: var(--garage-status-error) !important;
+    color: white !important;
+}
+
+.confirm-btn.warning {
+    background: var(--garage-status-warning) !important;
+    color: white !important;
+}
+
+.confirm-btn.info {
+    background: var(--garage-gradient-main) !important;
+    color: white !important;
+}

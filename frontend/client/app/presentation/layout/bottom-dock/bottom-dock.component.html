@@ -1,0 +1,45 @@
+<nav class="dock-container">
+  <div class="dock-pill">
+    
+    <a 
+      [routerLink]="'/' + key_route.LIST" 
+      routerLinkActive="active" 
+      class="dock-item"
+      [matTooltip]="'nav.access_key' | translate"
+    >
+      <div class="icon-box">
+        <mat-icon>vpn_key</mat-icon>
+      </div>
+      <div class="glow-indicator"></div>
+    </a>
+
+    <div class="divider"></div>
+
+    <a 
+      [routerLink]="'/' + bucket_route.LIST" 
+      routerLinkActive="active" 
+      class="dock-item"
+      [matTooltip]="'nav.bucket' | translate"
+    >
+      <div class="icon-box">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div class="glow-indicator"></div>
+    </a>
+
+    <div class="divider"></div>
+
+    <a 
+      [routerLink]="'/' + settings_route.HOME" 
+      routerLinkActive="active" 
+      class="dock-item"
+      [matTooltip]="'nav.settings' | translate"
+    >
+      <div class="icon-box">
+        <mat-icon>settings</mat-icon>
+      </div>
+      <div class="glow-indicator"></div>
+    </a>
+
+  </div>
+</nav>

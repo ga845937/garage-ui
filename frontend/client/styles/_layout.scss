@@ -1,0 +1,30 @@
+// Page Layout Mixins
+// 頁面共用 layout 樣式
+
+// Host 基本樣式 - 用於所有頁面元件
+@mixin page-host {
+    display: block;
+    min-height: 100%;
+}
+
+// Loading 容器
+@mixin loading-container($height: 60vh) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: $height;
+}
+
+// 內容包裝 (帶 fadeIn)
+@mixin content-wrapper {
+    animation: fadeIn 0.4s ease-out;
+}
+
+// Loading Sentinel (用於無限滾動)
+@mixin loading-sentinel {
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}

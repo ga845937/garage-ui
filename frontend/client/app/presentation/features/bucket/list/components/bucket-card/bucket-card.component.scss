@@ -1,0 +1,167 @@
+@use "styles/cards";
+@use "styles/utilities";
+
+:host {
+    @include utilities.host-interactive;
+}
+
+// .feature-card, .card-content, .card-title, .id-row, .meta-item (formerly .stat) are global
+
+.card {
+    @include cards.glow-card;
+    position: relative;
+    padding: 20px;
+    height: 100%;
+    min-height: 200px;
+}
+
+.card.selected {
+    border-color: var(--garage-gradient-purple);
+    background: rgba(151, 23, 231, 0.1);
+}
+
+.selection-checkbox {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+}
+
+.folder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.folder-header .card-title {
+    flex: 1;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--garage-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.folder-icon {
+    @include utilities.feature-icon;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 2px;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    color: var(--garage-text-secondary);
+}
+
+.action-btn mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.delete-btn:hover {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.bucket-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.id-badge {
+    @include utilities.id-badge;
+    flex: 1;
+}
+
+// Copy Button
+.copy-btn {
+    @include utilities.copy-btn;
+}
+
+// Prominent Stats (Usage & Objects)
+.stats-highlight {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding: 8px 0;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-item mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--garage-text-muted);
+}
+
+.stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--garage-text-primary);
+}
+
+// Footer
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 8px;
+    gap: 12px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--garage-text-secondary);
+    font-size: 0.8rem;
+}
+
+.meta-item mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--garage-text-muted);
+}
+
+.aliases {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.alias-chip {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--garage-text-secondary);
+    border: 1px solid var(--garage-border);
+}
+
+.alias-chip.more {
+    background: rgba(151, 23, 231, 0.15);
+    border-color: rgba(151, 23, 231, 0.3);
+    color: var(--garage-gradient-purple);
+}

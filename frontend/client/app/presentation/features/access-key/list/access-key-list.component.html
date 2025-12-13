@@ -1,0 +1,66 @@
+<div class="content-wrapper">
+    <!-- Selection Mode Toolbar -->
+    @if (selection_mode()) {
+        <div class="selection-toolbar">
+            <button mat-icon-button (click)="cancel_selection()" [matTooltip]="'common.cancel' | translate">
+                <mat-icon>close</mat-icon>
+            </button>
+            <mat-checkbox 
+                [checked]="store.all_selected()"
+                [indeterminate]="store.selected_ids().length > 0 && !store.all_selected()"
+                (change)="toggle_all()"
+            >
+                {{ 'common.select_all' | translate }}
+            </mat-checkbox>
+            <span class="selection-count">{{ store.selected_ids().length }} {{ 'common.selected' | translate }}</span>
+            <button 
+                mat-flat-button 
+                class="confirm-btn"
+                [disabled]="store.selected_ids().length === 0"
+                (click)="confirm_delete()"
+            >
+                <mat-icon>delete</mat-icon>
+                {{ 'common.confirm' | translate }}
+            </button>
+        </div>
+    }
+
+    <!-- Grid View -->
+    @if (store.items().length > 0) {
+        <div class="card-grid">
+            @for (key of store.items(); track key.id) {
+                <app-access-key-card 
+                    [key]="key"
+                    [selection_mode]="selection_mode()"
+                    [selected]="store.selected_ids().includes(key.id)"
+                    (card_click)="open_detail(key)"
+                    (selection_change)="toggle_item_selection(key)"
+                ></app-access-key-card>
+            }
+        </div>
+
+        <!-- Loading / End Sentinel -->
+        <div #loading_sentinel class="loading-sentinel">
+            @if (layout.loading()) {
+                <mat-spinner diameter="32"></mat-spinner>
+            }
+        </div>
+    } @else if (layout.loading()) {
+        <div class="loading-container">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
+    } @else {
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon-wrapper">
+                <mat-icon>vpn_key</mat-icon>
+            </div>
+            <h2>{{ 'access_key.empty' | translate }}</h2>
+            <p>{{ 'access_key.empty_desc' | translate }}</p>
+            <button mat-flat-button class="create-btn" (click)="create_key()">
+                <mat-icon>add</mat-icon>
+                {{ 'access_key.create_first' | translate }}
+            </button>
+        </div>
+    }
+</div>

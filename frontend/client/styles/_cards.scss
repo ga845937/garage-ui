@@ -1,0 +1,103 @@
+// Card Mixins
+// 卡片元件 mixins
+
+@use "effects";
+
+// Card Base
+@mixin card-base {
+    background: var(--garage-surface-card);
+    border: 1px solid var(--garage-border);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+// Glow Card (Interactive card with hover glow effect)
+@mixin glow-card {
+    @include card-base;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+
+    .card-glow {
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        padding: 2px;
+        background: var(--garage-gradient-main);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        background: var(--garage-surface-hover);
+
+        .card-glow {
+            opacity: 0.5;
+        }
+    }
+}
+
+// Form Card (Static card for forms)
+@mixin form-card {
+    @include card-base;
+    max-width: 600px;
+    padding: 24px;
+}
+
+// Card Grid Container
+@mixin card-grid($min-width: 280px, $gap: 20px) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax($min-width, 1fr));
+    gap: $gap;
+}
+
+// Empty State Container
+@mixin empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    text-align: center;
+    color: var(--garage-text-secondary);
+}
+
+// Empty State Icon Wrapper
+@mixin empty-icon-wrapper($size: 80px, $icon-size: 40px) {
+    width: $size;
+    height: $size;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    border: 1px solid var(--garage-border);
+
+    mat-icon {
+        font-size: $icon-size;
+        width: $icon-size;
+        height: $icon-size;
+        color: var(--garage-text-muted);
+    }
+}
+
+// Empty State Title
+@mixin empty-state-title {
+    font-size: 1.5rem;
+    color: var(--garage-text-primary);
+    margin: 0 0 8px;
+}
+
+// Empty State Description
+@mixin empty-state-desc {
+    max-width: 400px;
+    margin: 0 0 32px;
+}

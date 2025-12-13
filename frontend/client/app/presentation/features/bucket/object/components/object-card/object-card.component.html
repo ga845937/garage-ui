@@ -1,0 +1,69 @@
+<div class="card" [class.folder]="item.is_folder" [class.selected]="selected" (click)="on_click()">
+    <!-- Selection Checkbox -->
+    @if (selection_mode) {
+        <div class="selection-checkbox" (click)="$event.stopPropagation()">
+            <mat-checkbox [checked]="selected" (change)="toggle_select.emit(item.key)"></mat-checkbox>
+        </div>
+    }
+    
+    <!-- Object Icon or Thumbnail -->
+    <div class="icon-wrapper" [class.folder-icon]="item.is_folder">
+        @if (is_image && !thumbnail_error) {
+            <!-- Thumbnail for images -->
+            <div class="thumbnail-container">
+                @if (thumbnail_loading) {
+                    <div class="thumbnail-skeleton">
+                        <mat-spinner diameter="40"></mat-spinner>
+                    </div>
+                } @else if (thumbnail_url) {
+                    <img 
+                        [src]="thumbnail_url" 
+                        [alt]="item.name"
+                        class="thumbnail"
+                        (error)="thumbnail_error = true"
+                    />
+                } @else {
+                    <mat-icon>{{ get_file_icon() }}</mat-icon>
+                }
+            </div>
+        } @else {
+            <!-- Regular icon -->
+            <mat-icon>{{ item.is_folder ? 'folder' : get_file_icon() }}</mat-icon>
+        }
+    </div>
+
+    <!-- Object Info -->
+    <div class="object-info">
+        <div class="card-title" [matTooltip]="item.name" matTooltipPosition="above">{{ item.name }}</div>
+        <div class="meta">
+            @if (item.is_folder) {
+                <span class="stat"><mat-icon>description</mat-icon>{{ item.object_count ?? 0 }}</span>
+                <span class="stat"><mat-icon>storage</mat-icon>{{ format_bytes(item.total_size || 0) }}</span>
+            } @else {
+                <span class="stat"><mat-icon>storage</mat-icon>{{ format_bytes(item.size || 0) }}</span>
+            }
+        </div>
+    </div>
+
+    <!-- Context Menu Button -->
+    <button 
+        mat-icon-button 
+        class="menu-btn"
+        [matMenuTriggerFor]="contextMenu"
+        (click)="$event.stopPropagation()"
+    >
+        <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #contextMenu="matMenu">
+        @if (!item.is_folder) {
+            <button mat-menu-item (click)="on_download()">
+                <mat-icon>download</mat-icon>
+                <span>{{ 'bucket.download' | translate }}</span>
+            </button>
+        }
+        <button mat-menu-item class="delete-item" (click)="on_delete()">
+            <mat-icon>delete</mat-icon>
+            <span>{{ 'common.delete' | translate }}</span>
+        </button>
+    </mat-menu>
+</div>

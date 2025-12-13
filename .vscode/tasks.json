@@ -1,0 +1,23 @@
+{
+	"tasks": [
+		{
+			"args": ["build"],
+			"command": "cargo",
+			"group": {
+				"isDefault": true,
+				"kind": "build"
+			},
+			"label": "cargoBuild",
+			"problemMatcher": ["$rustc"],
+			"type": "shell"
+		},
+		{
+			"label": "build-ts",
+			"path": "frontend",
+			"problemMatcher": ["$eslint-stylish"],
+			"script": "proto",
+			"type": "npm"
+		}
+	],
+	"version": "2.0.0"
+}

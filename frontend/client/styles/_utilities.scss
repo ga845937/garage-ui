@@ -1,0 +1,90 @@
+// Utility Mixins
+// 工具類 mixins
+
+// ID Badge
+@mixin id-badge {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--garage-text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// Icon Button
+@mixin icon-button($size: 28px, $icon-size: 16px) {
+    width: $size;
+    height: $size;
+    line-height: $size;
+    flex-shrink: 0;
+    
+    mat-icon {
+        font-size: $icon-size;
+        width: $icon-size;
+        height: $icon-size;
+        color: var(--garage-text-muted);
+    }
+
+    &:hover mat-icon {
+        color: var(--garage-text-primary);
+    }
+}
+
+// Copy Button - unified style for all copy buttons
+@mixin copy-btn($size: 28px, $icon-size: 18px) {
+    width: $size;
+    height: $size;
+    line-height: $size;
+    flex-shrink: 0;
+    
+    mat-icon {
+        font-size: $icon-size;
+        width: $icon-size;
+        height: $icon-size;
+        color: var(--garage-text-muted);
+    }
+
+    &:hover mat-icon {
+        color: var(--garage-text-primary);
+    }
+}
+
+// Feature Icon - card header icon with hover effects
+@mixin feature-icon($size: 48px, $icon-size: 28px) {
+    width: $size;
+    height: $size;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(228, 0, 53, 0.2), rgba(151, 23, 231, 0.2)); // Keep transparency on vars if needed, or use specific vars if available.
+    // Ideally this gradient transparency implies we might need specific rgba vars or just keep as is if complex. 
+    // Let's check variables.scss again. We have --garage-gradient-glow but it's fixed 0.5 opacity.
+    // For now keeping rgba with static values matching the pink/purple theme, but maybe we should define a var for this background?
+    // Let's try to minimal touch here unless we have the var.
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--garage-border);
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+    
+    mat-icon {
+        font-size: $icon-size;
+        width: $icon-size;
+        height: $icon-size;
+        color: var(--garage-gradient-pink);
+    }
+
+    &:hover {
+        background: linear-gradient(135deg, rgba(228, 0, 53, 0.35), rgba(151, 23, 231, 0.35));
+        transform: scale(1.05);
+    }
+}
+
+// Host Interactive
+@mixin host-interactive {
+    display: block;
+    cursor: pointer;
+}

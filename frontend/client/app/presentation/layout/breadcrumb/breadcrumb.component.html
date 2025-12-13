@@ -1,0 +1,52 @@
+<nav class="breadcrumb-container">
+    <!-- Navigation History Buttons -->
+    <div class="nav-buttons">
+        <button 
+            mat-icon-button 
+            class="nav-btn"
+            [disabled]="!can_go_back"
+            (click)="go_back.emit()"
+            [matTooltip]="'file.go_back' | translate"
+        >
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button 
+            mat-icon-button 
+            class="nav-btn"
+            [disabled]="!can_go_forward"
+            (click)="go_forward.emit()"
+            [matTooltip]="'file.go_forward' | translate"
+        >
+            <mat-icon>arrow_forward</mat-icon>
+        </button>
+    </div>
+
+    <div class="separator-line"></div>
+
+    <!-- Home / Root with Bucket Name -->
+    <button 
+        mat-button 
+        class="home-btn"
+        (click)="navigate_to.emit('')"
+        [matTooltip]="'file.root' | translate"
+    >
+        <mat-icon>park</mat-icon>
+        @if (bucket_name) {
+            <span class="bucket-name">{{ bucket_name }}</span>
+        }
+    </button>
+
+    <!-- Path Parts -->
+    @for (part of path_parts; track $index) {
+        <mat-icon class="separator">chevron_right</mat-icon>
+        <button 
+            mat-button 
+            class="path-btn"
+            [class.current]="$last"
+            (click)="on_part_click($index)"
+        >
+            <mat-icon class="folder-icon">folder</mat-icon>
+            {{ part }}
+        </button>
+    }
+</nav>

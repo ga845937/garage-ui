@@ -1,0 +1,68 @@
+<div class="card" [class.selected]="selected" (click)="on_card_click()">
+    <!-- Glow border effect container -->
+    <div class="card-glow"></div>
+    
+    <!-- Selection Checkbox -->
+    @if (selection_mode) {
+        <div class="selection-checkbox" (click)="$event.stopPropagation()">
+            <mat-checkbox 
+                [checked]="selected"
+                (change)="on_selection_change($event.checked)"
+            ></mat-checkbox>
+        </div>
+    }
+    
+    <div class="card-content">
+        <!-- Header: Icon & Name -->
+        <div class="key-header">
+            <div class="key-icon">
+                <mat-icon>vpn_key</mat-icon>
+            </div>
+            <h3 class="card-title">{{ key.name }}</h3>
+        </div>
+
+        <!-- Key ID -->
+        <div class="key-info">
+            <div class="id-row">
+                <span class="id-badge">{{ key.id }}</span>
+                <app-copy-button
+                    [tooltip]="'access_key.copy_id' | translate"
+                    (copy_click)="copy_id()"
+                ></app-copy-button>
+            </div>
+        </div>
+
+        <!-- Secret Key (if available) -->
+        <div class="secret-row" (click)="$event.stopPropagation()">
+            <span class="secret-badge">{{ show_secret() ? get_secret() : '••••••••••••••••••••••••' }}</span>
+            <div class="secret-actions">
+                <button 
+                    mat-icon-button 
+                    class="secret-btn"
+                    (click)="toggle_secret()"
+                    [matTooltip]="(show_secret() ? 'common.hide' : 'common.show') | translate"
+                >
+                    <mat-icon>{{ show_secret() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (show_secret()) {
+                    <app-copy-button
+                        [tooltip]="'access_key.copy_secret' | translate"
+                        (copy_click)="copy_secret()"
+                    ></app-copy-button>
+                }
+            </div>
+        </div>
+
+        <!-- Footer: Created & Expiration -->
+        <div class="footer">
+            <div class="meta-item" [matTooltip]="date_format.format_full(key.created)" matTooltipPosition="above">
+                <mat-icon>cake</mat-icon>
+                <span>{{ date_format.format(key.created) }}</span>
+            </div>
+            <div class="meta-item expiration" [class.expired]="is_expired()" [matTooltip]="key.expiration ? date_format.format_full(key.expiration) : ''" matTooltipPosition="above">
+                <mat-icon>{{ key.expiration ? 'event_busy' : 'all_inclusive' }}</mat-icon>
+                <span>{{ key.expiration ? date_format.format(key.expiration) : ('access_key.never_expires' | translate) }}</span>
+            </div>
+        </div>
+    </div>
+</div>

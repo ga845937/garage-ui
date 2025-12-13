@@ -1,0 +1,111 @@
+<div class="permission-container">
+	<mat-card>
+		<mat-card-header>
+			<mat-card-title>
+				<div class="title-group">
+					<mat-icon>vpn_key</mat-icon>
+					<span>{{ i18n.t("bucket.permission.key_list") }}</span>
+				</div>
+			</mat-card-title>
+            <!-- Actions handled by Layout Top Bar now -->
+		</mat-card-header>
+
+		<mat-card-content>
+			@if (permissions().length === 0) {
+			<div class="empty-state">
+				<div class="empty-icon-circle">
+					<mat-icon>vpn_key_off</mat-icon>
+				</div>
+				<p class="empty-title">{{ i18n.t("bucket.permission.no_keys") }}</p>
+				<p class="empty-subtitle">{{ i18n.t("bucket.permission.grant_access_hint") }}</p>
+			</div>
+			} @else {
+			<div class="permission-list">
+                @if (is_deleting) {
+                    <div class="list-header">
+                        <div class="col-check">
+                            <mat-checkbox 
+                                [checked]="selection().size === permissions().length && permissions().length > 0"
+                                [indeterminate]="selection().size > 0 && selection().size < permissions().length"
+                                (change)="toggle_all_selection($event.checked)">
+                            </mat-checkbox>
+                        </div>
+                        <div class="col-main">{{ i18n.t("access_key.key_info") }}</div>
+                        <div class="col-perms">{{ i18n.t("bucket.permission.key_list") }}</div> 
+                    </div>
+                }
+
+				@for (perm of permissions(); track perm.access_key_id) {
+				<div class="permission-row" 
+					[class.editing]="is_editing" 
+					[class.deleting]="is_deleting"
+					[class.selected]="selection().has(perm.access_key_id)"
+					[class.new-item]="is_new(perm.access_key_id)"
+					(click)="on_row_click(perm)">
+                    <!-- Checkbox (Delete Mode Only) -->
+                    @if (is_deleting) {
+                        <div class="item-check" (click)="$event.stopPropagation()">
+                            <mat-checkbox 
+                                [checked]="selection().has(perm.access_key_id)"
+                                (change)="toggle_selection(perm.access_key_id)">
+                            </mat-checkbox>
+                        </div>
+                    }
+
+                    <!-- Icon -->
+					<div class="item-icon">
+                        <div class="avatar-icon" 
+                             [class.bg-owner]="perm.permissions.owner"
+                             [class.bg-write]="!perm.permissions.owner && perm.permissions.write"
+                             [class.bg-read]="!perm.permissions.owner && !perm.permissions.write && perm.permissions.read">
+							<mat-icon>key</mat-icon>
+						</div>
+					</div>
+
+                    <!-- Key Info -->
+					<div class="item-info">
+                        <span class="key-name">{{ perm.name || 'Unnamed Key' }}</span>
+						<div class="key-id">{{ perm.access_key_id }}</div>
+					</div>
+
+                    <!-- Permissions -->
+					<div class="item-perms">
+                        <!-- Remove button (All keys in Edit Mode) -->
+                        @if (is_editing) {
+                            <button mat-icon-button class="remove-btn" (click)="remove_key($event, perm.access_key_id)" [matTooltip]="i18n.t('bucket.permission.remove')">
+                                <mat-icon>remove_circle_outline</mat-icon>
+                            </button>
+                        }
+
+                        <!-- Owner -->
+                        <div class="perm-badge owner" 
+                             [class.active]="perm.permissions.owner"
+                             [class.inactive]="!perm.permissions.owner"
+                             [class.clickable]="is_editing && !is_deleting"
+                             (click)="on_badge_click($event, perm, 'owner')">
+                            {{ i18n.t("bucket.permission.owner") }}
+                        </div>
+                        <!-- Read -->
+                        <div class="perm-badge read" 
+                             [class.active]="perm.permissions.read" 
+                             [class.inactive]="!perm.permissions.read"
+                             [class.clickable]="is_editing && !is_deleting"
+                             (click)="on_badge_click($event, perm, 'read')">
+                            {{ i18n.t("bucket.permission.read") }}
+                        </div>
+                        <!-- Write -->
+                        <div class="perm-badge write" 
+                             [class.active]="perm.permissions.write" 
+                             [class.inactive]="!perm.permissions.write"
+                             [class.clickable]="is_editing && !is_deleting"
+                             (click)="on_badge_click($event, perm, 'write')">
+                             {{ i18n.t("bucket.permission.write") }}
+                        </div>
+					</div>
+				</div>
+				}
+			</div>
+			}
+		</mat-card-content>
+	</mat-card>
+</div>

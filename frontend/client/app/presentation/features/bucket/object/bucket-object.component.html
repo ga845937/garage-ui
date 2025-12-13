@@ -1,0 +1,231 @@
+<div class="content-wrapper">
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="header-left">
+            <!-- Back Button -->
+            <button mat-icon-button (click)="go_back()" matTooltip="Back to Bucket">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            <span class="bucket-name">{{ bucket_name() }}</span>
+        </div>
+
+        <!-- Breadcrumb -->
+        <app-breadcrumb 
+            [prefix]="store.current_prefix()"
+            [bucket_name]="bucket_name()"
+            [can_go_back]="store.can_go_back()"
+            [can_go_forward]="store.can_go_forward()"
+            (navigate_to)="navigate_to($event)"
+            (go_back)="go_back_in_history()"
+            (go_forward)="go_forward_in_history()"
+        ></app-breadcrumb>
+
+        <div class="toolbar-actions">
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button 
+                    mat-icon-button 
+                    [class.active]="view_mode() === 'grid'"
+                    (click)="set_view_mode('grid')"
+                    [matTooltip]="'file.grid_view' | translate"
+                >
+                    <mat-icon>grid_view</mat-icon>
+                </button>
+                <button 
+                    mat-icon-button 
+                    [class.active]="view_mode() === 'list'"
+                    (click)="set_view_mode('list')"
+                    [matTooltip]="'file.list_view' | translate"
+                >
+                    <mat-icon>view_list</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input
+        type="file"
+        multiple
+        #file_input
+        (change)="on_files_selected($event)"
+        style="display: none"
+    />
+
+    @if (store.loading_objects()) {
+        <div class="loading-container">
+            <mat-spinner diameter="48"></mat-spinner>
+        </div>
+    } @else {
+        <!-- Drop Zone -->
+        <div
+            class="file-container"
+            (dragover)="on_drag_over($event)"
+            (dragleave)="on_drag_leave($event)"
+            (drop)="on_drop($event)"
+            [class.drag-over]="is_dragging()"
+        >
+            <!-- Drag Overlay -->
+            @if (is_dragging()) {
+                <div class="drop-overlay">
+                    <div class="drop-content">
+                        <mat-icon>cloud_upload</mat-icon>
+                        <p>{{ 'file.drop_hint' | translate }}</p>
+                    </div>
+                </div>
+            }
+
+            @if (combined_items().length === 0) {
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-icon-wrapper">
+                        <mat-icon>cloud_upload</mat-icon>
+                    </div>
+                    <h2>{{ 'file.empty' | translate }}</h2>
+                    <p>{{ 'file.drop_hint' | translate }}</p>
+                    <button mat-flat-button class="upload-btn" (click)="open_upload_dialog()">
+                        <mat-icon>upload</mat-icon>
+                        {{ 'bucket.upload' | translate }}
+                    </button>
+                </div>
+            } @else {
+                <!-- Grid View -->
+                @if (view_mode() === 'grid') {
+                    <div class="file-grid">
+                        @for (item of combined_items(); track item.key) {
+                            <app-object-card
+                                [item]="item"
+                                [bucket_id]="store.selected_bucket()?.id!"
+                                [bucket_name]="bucket_name()"
+                                [selection_mode]="selection_mode()"
+                                [selected]="selected_items().has(item.key)"
+                                (navigate)="navigate_to($event)"
+                                (download)="download_file($event)"
+                                (delete)="delete_file([$event])"
+                                (toggle_select)="toggle_select_item($event)"
+                            ></app-object-card>
+                        }
+                    </div>
+                } @else {
+                    <!-- File Table -->
+                    <table mat-table [dataSource]="combined_items()" class="file-table" multiTemplateDataRows>
+                        
+                        <!-- Selection Column -->
+                        <ng-container matColumnDef="select">
+                            <th mat-header-cell *matHeaderCellDef>
+                                @if (selection_mode()) {
+                                    <mat-checkbox 
+                                        (change)="$event ? select_all() : null"
+                                        [checked]="selected_items().size === combined_items().length && combined_items().length > 0">
+                                    </mat-checkbox>
+                                }
+                            </th>
+                            <td mat-cell *matCellDef="let row">
+                                @if (selection_mode()) {
+                                    <mat-checkbox 
+                                        (click)="$event.stopPropagation()"
+                                        (change)="$event ? toggle_select_item(row.key) : null"
+                                        [checked]="selected_items().has(row.key)">
+                                    </mat-checkbox>
+                                }
+                            </td>
+                        </ng-container>
+
+                        <!-- Icon Column -->
+                        <ng-container matColumnDef="icon">
+                            <th mat-header-cell *matHeaderCellDef style="width: 48px"></th>
+                            <td mat-cell *matCellDef="let row">
+                                @if (row.is_folder) {
+                                    <mat-icon class="folder-icon">folder</mat-icon>
+                                } @else if (thumbnail_api.is_image(row.name) && row.etag) {
+                                    @if (get_thumbnail_state(row.key).loading) {
+                                        <div class="thumbnail-skeleton">
+                                            <mat-spinner diameter="20"></mat-spinner>
+                                        </div>
+                                    } @else if (get_thumbnail_state(row.key).url && !get_thumbnail_state(row.key).error) {
+                                        <img 
+                                            [src]="get_thumbnail_state(row.key).url!" 
+                                            [alt]="row.name"
+                                            class="list-thumbnail"
+                                            (error)="on_thumbnail_error(row.key)"
+                                        />
+                                    } @else {
+                                        <mat-icon>{{ get_file_icon(row.name) }}</mat-icon>
+                                    }
+                                } @else {
+                                    <mat-icon>{{ get_file_icon(row.name) }}</mat-icon>
+                                }
+                            </td>
+                        </ng-container>
+
+                        <!-- Name Column -->
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef>{{ 'common.name' | translate }}</th>
+                            <td mat-cell *matCellDef="let row">
+                                @if (row.is_folder) {
+                                    <a class="folder-link" (click)="!selection_mode() ? navigate_to(row.key) : null">
+                                        {{ row.name }}
+                                        @if (row.object_count !== undefined && row.object_count !== null) {
+                                            <span class="object-count-inline">({{ row.object_count }})</span>
+                                        }
+                                    </a>
+                                } @else {
+                                    <span>{{ row.name }}</span>
+                                }
+                            </td>
+                        </ng-container>
+
+                        <!-- Size Column -->
+                        <ng-container matColumnDef="size">
+                            <th mat-header-cell *matHeaderCellDef>{{ 'file.size' | translate }}</th>
+                            <td mat-cell *matCellDef="let row">
+                                @if (row.is_folder) {
+                                    {{ format_bytes(row.total_size || 0) }}
+                                } @else {
+                                    {{ format_bytes(row.size || 0) }}
+                                }
+                            </td>
+                        </ng-container>
+
+                        <!-- Modified Column -->
+                        <ng-container matColumnDef="modified">
+                            <th mat-header-cell *matHeaderCellDef>{{ 'common.updated' | translate }}</th>
+                            <td mat-cell *matCellDef="let row">
+                                {{ row.last_modified | date : 'yyyy-MM-dd HH:mm' }}
+                            </td>
+                        </ng-container>
+
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef></th>
+                            <td mat-cell *matCellDef="let row">
+                                @if (!selection_mode()) {
+                                    @if (!row.is_folder) {
+                                        <button
+                                            mat-icon-button
+                                            (click)="download_file(row.key)"
+                                            [matTooltip]="'bucket.download' | translate"
+                                        >
+                                            <mat-icon>download</mat-icon>
+                                        </button>
+                                    }
+                                    <button
+                                        mat-icon-button
+                                        class="delete-btn"
+                                        (click)="delete_file([row.key])"
+                                        [matTooltip]="'common.delete' | translate"
+                                    >
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                }
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayed_columns()"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayed_columns()"></tr>
+                    </table>
+                }
+            }
+        </div>
+    }
+</div>

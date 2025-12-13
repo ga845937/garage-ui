@@ -1,0 +1,31 @@
+<div class="datetime-picker-wrapper">
+	<mat-form-field appearance="outline" class="datetime-field">
+		<mat-label>{{ label }}</mat-label>
+		<input
+			matInput
+			type="datetime-local"
+			[ngModel]="value"
+			(input)="on_input($event)"
+			[min]="min_datetime"
+			step="1"
+			#datetimeInput
+		/>
+		<button mat-icon-button matSuffix type="button" (click)="show_picker(datetimeInput)">
+			<mat-icon>calendar_today</mat-icon>
+		</button>
+		@if (hint) {
+			<mat-hint>{{ hint }}</mat-hint>
+		}
+	</mat-form-field>
+	@if (clearable && value) {
+		<button
+			mat-icon-button
+			class="clear-btn"
+			(click)="clear()"
+			type="button"
+			[matTooltip]="'common.clear' | translate"
+		>
+			<mat-icon>close</mat-icon>
+		</button>
+	}
+</div>

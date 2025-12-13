@@ -1,0 +1,54 @@
+[package]
+name = "garage-ui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.49.0", features = ["full"] }
+
+# gRPC
+tonic = "0.14.3"
+tonic-prost = "0.14.3"
+prost = "0.14.3"
+tower = "0.5.3"
+http = "1.4.0"
+http-body = "1.0"
+
+# Configuration
+dotenvy = "0.15"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.149"
+
+# HTTP client for Garage API
+reqwest = { version = "0.13.1", features = ["json"] }
+
+# Error handling
+thiserror = "2.0.18"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "time"] }
+tracing-appender = "0.2"
+
+# Async trait
+async-trait = "0.1"
+
+# Async utilities
+futures = "0.3"
+bytes = "1.10"
+
+# DateTime
+chrono = { version = "0.4.43", features = ["serde"] }
+
+# AWS SDK for S3 operations (Garage S3-compatible API)
+aws-config = { version = "1.8.12" }
+aws-sdk-s3 = { version = "1.121.0" }
+aws-credential-types = "1.2"
+tokio-stream = "0.1.18"
+
+[build-dependencies]
+tonic-prost-build = "0.14.3"

@@ -1,0 +1,119 @@
+@use "styles/cards";
+@use "styles/utilities";
+
+:host {
+    @include utilities.host-interactive;
+}
+
+// .feature-card, .card-content, .card-title, .id-row, .meta-item (formerly .date-info) are global
+
+.card {
+    @include cards.glow-card;
+    position: relative;
+    padding: 20px; // Consider making this a card-padding variable if consistent across all cards
+    height: 100%;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card.selected {
+    border-color: var(--garage-gradient-purple);
+    background: rgba(151, 23, 231, 0.1);
+}
+
+.selection-checkbox {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+}
+
+.key-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.key-header .card-title {
+    flex: 1;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--garage-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.key-icon {
+    @include utilities.feature-icon;
+}
+
+.key-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.id-badge {
+    @include utilities.id-badge;
+    flex: 1;
+}
+
+.copy-btn {
+    @include utilities.copy-btn;
+}
+
+// Secret Key Row
+.secret-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+}
+
+.secret-badge {
+    @include utilities.id-badge;
+    flex: 1;
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+.secret-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.secret-btn {
+    // Magic numbers for specific small icon button - consider mixin if reused
+    width: 28px;
+    height: 28px;
+    color: var(--garage-text-muted);
+    
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
+    flex-wrap: wrap;
+    padding-top: 20px;
+}
+
+.expiration {
+    color: var(--garage-text-secondary);
+}
+
+.expiration.expired {
+    color: var(--garage-status-error);
+}
+

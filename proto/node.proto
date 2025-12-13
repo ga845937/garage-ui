@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package node;
+
+// Node Service - gRPC API for node operations
+service NodeService {
+    // Query operations
+    rpc GetNodeInfo(GetNodeInfoRequest) returns (ApiResponse);
+    rpc GetNodeStatistics(GetNodeStatisticsRequest) returns (ApiResponse);
+    
+    // Command operations
+    rpc CreateMetadataSnapshot(CreateMetadataSnapshotRequest) returns (ApiResponse);
+    rpc LaunchRepair(LaunchRepairRequest) returns (ApiResponse);
+}
+
+// ============== Common Response ==============
+
+// Unified API response with trace_id
+message ApiResponse {
+    string trace_id = 1;
+    oneof data {
+        MultiNodeInfoData node_info = 2;
+        MultiNodeStatisticsData node_statistics = 3;
+        MultiNodeEmptyData metadata_snapshot = 4;
+        MultiNodeEmptyData launch_repair = 5;
+    }
+}
+
+message MultiNodeInfoData {
+    map<string, NodeInfoResult> results = 1;
+}
+
+message MultiNodeStatisticsData {
+    map<string, NodeStatisticsResult> results = 1;
+}
+
+message MultiNodeEmptyData {
+    map<string, EmptyResult> results = 1;
+}
+
+// ============== Query Requests ==============
+
+message GetNodeInfoRequest {
+    string node = 1; // Node ID or "*" for all nodes
+}
+
+message GetNodeStatisticsRequest {
+    string node = 1; // Node ID or "*" for all nodes
+}
+
+// ============== Command Requests ==============
+
+message CreateMetadataSnapshotRequest {
+    string node = 1; // Node ID or "*" for all nodes
+}
+
+message LaunchRepairRequest {
+    string node = 1; // Node ID or "*" for all nodes
+    string repair_type = 2; // "tables", "blocks", "versions", "block_refs", "block_rc", "scrub"
+}
+
+// ============== Messages ==============
+
+message NodeInfoResult {
+    oneof result {
+        NodeInfo info = 1;
+        string error = 2;
+    }
+}
+
+message NodeInfo {
+    string node_id = 1;
+    string node_addr = 2;
+    optional string zone = 3;
+    optional int64 capacity = 4;
+    repeated string tags = 5;
+    string garage_version = 6;
+    repeated string garage_features = 7;
+    string rust_version = 8;
+    string db_engine = 9;
+}
+
+message NodeStatisticsResult {
+    oneof result {
+        NodeStatistics statistics = 1;
+        string error = 2;
+    }
+}
+
+message NodeStatistics {
+    string freeform = 1;
+}
+
+message EmptyResult {
+    oneof result {
+        bool success = 1;
+        string error = 2;
+    }
+}

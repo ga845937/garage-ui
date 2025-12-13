@@ -1,0 +1,32 @@
+<!-- Page Header -->
+<div class="page-header">
+    <div class="header-left">
+        <button mat-icon-button class="header-action-btn" [routerLink]="'/' + bucket_route.LIST" [matTooltip]="i18n.t('common.back')">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>{{ store.selected_item()?.display_name ?? 'Bucket' }}</h1>
+    </div>
+</div>
+
+@if (layout.loading()) {
+    <div class="loading-container">
+        <mat-spinner diameter="48"></mat-spinner>
+    </div>
+} @else if (store.selected_item(); as bucket) {
+    <div class="single-card-container">
+        <app-bucket-properties
+            [bucket]="bucket"
+            [editable]="is_editing()"
+            (save)="on_save($event)"
+            (cancel)="on_cancel_edit()"
+            (copy_to_clipboard)="on_copy_to_clipboard($event)"
+        ></app-bucket-properties>
+
+        <app-bucket-permission 
+            [id]="id" 
+            [is_editing]="is_editing()"
+            [is_deleting]="is_deleting()"
+            (selection_change)="on_permission_selection_change($event)">
+        </app-bucket-permission>
+    </div>
+}

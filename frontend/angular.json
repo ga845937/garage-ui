@@ -1,0 +1,105 @@
+{
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"cli": {
+		"analytics": "20a4b699-a51f-48de-8fa4-2d08b0b5c6fa",
+		"packageManager": "npm"
+	},
+	"newProjectRoot": "projects",
+	"projects": {
+		"garage-ui": {
+			"architect": {
+				"build": {
+					"builder": "@angular/build:application",
+					"configurations": {
+						"development": {
+							"extractLicenses": false,
+							"optimization": false,
+							"sourceMap": true
+						},
+						"production": {
+							"budgets": [
+								{
+									"maximumError": "1MB",
+									"maximumWarning": "500kB",
+									"type": "initial"
+								},
+								{
+									"maximumError": "8kB",
+									"maximumWarning": "4kB",
+									"type": "anyComponentStyle"
+								}
+							],
+							"fileReplacements": [
+								{
+									"replace": "client/app/environments/environment.ts",
+									"with": "client/app/environments/environment.prod.ts"
+								}
+							],
+							"outputHashing": "all"
+						}
+					},
+					"defaultConfiguration": "production",
+					"options": {
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "public"
+							}
+						],
+						"browser": "client/main.ts",
+						"inlineStyleLanguage": "scss",
+						"stylePreprocessorOptions": {
+							"includePaths": ["client"]
+						},
+						"styles": ["client/styles.scss"],
+						"tsConfig": "tsconfig.client.json"
+					}
+				},
+				"serve": {
+					"builder": "@angular/build:dev-server",
+					"configurations": {
+						"development": {
+							"buildTarget": "garage-ui:build:development"
+						},
+						"production": {
+							"buildTarget": "garage-ui:build:production"
+						}
+					},
+					"defaultConfiguration": "development"
+				}
+			},
+			"prefix": "app",
+			"projectType": "application",
+			"root": "",
+			"schematics": {
+				"@schematics/angular:class": {
+					"skipTests": true
+				},
+				"@schematics/angular:component": {
+					"skipTests": true,
+					"style": "scss"
+				},
+				"@schematics/angular:directive": {
+					"skipTests": true
+				},
+				"@schematics/angular:guard": {
+					"skipTests": true
+				},
+				"@schematics/angular:interceptor": {
+					"skipTests": true
+				},
+				"@schematics/angular:pipe": {
+					"skipTests": true
+				},
+				"@schematics/angular:resolver": {
+					"skipTests": true
+				},
+				"@schematics/angular:service": {
+					"skipTests": true
+				}
+			},
+			"sourceRoot": "client"
+		}
+	},
+	"version": 1
+}

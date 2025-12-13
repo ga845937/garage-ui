@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package access_key;
+
+import "utility.proto";
+
+// Access Key Service - gRPC API for access key management
+service AccessKeyService {
+    // Query operations
+    rpc ListKey(ListKeysRequest) returns (ListKeysResponse);
+    rpc ReadKey(ReadKeyRequest) returns (KeyResponse);
+    
+    // Command operations
+    rpc CreateKey(CreateKeyRequest) returns (KeyResponse);
+    rpc UpdateKey(UpdateKeyRequest) returns (KeyResponse);
+    rpc DeleteKey(DeleteKeyRequest) returns (DeleteKeyResponse);
+}
+
+message ListKeysResponse {
+    string trace_id = 1;
+    repeated KeyListItem data = 2;
+    int32 total = 3;
+}
+
+message KeyResponse {
+    string trace_id = 1;
+    Key data = 2;
+}
+
+message DeleteKeyResponse {
+    string trace_id = 1;
+    repeated string id = 2;
+}
+
+// ============== Query Requests ==============
+
+message ListKeysRequest {
+    utility.Pagination pagination = 1;
+    optional string name = 2;
+    optional utility.DateRange created = 3;
+    optional utility.DateRange expiration = 4;
+}
+
+message ReadKeyRequest {
+    string id = 1;
+}
+
+// ============== Command Requests ==============
+
+message CreateKeyRequest {
+    string name = 1;
+    optional string expiration = 2;
+    optional bool allow_create_bucket = 3;
+}
+
+message UpdateKeyRequest {
+    string id = 1;
+    optional string name = 2;
+    optional utility.NullableString expiration = 3;
+    optional bool allow_create_bucket = 4;
+}
+
+message DeleteKeyRequest {
+    repeated string id = 1;
+}
+
+// ============== Messages ==============
+message KeyPerm {
+    bool create_bucket = 1;
+}
+
+message KeyListItem {
+    string id = 1;
+    string name = 2;
+    string created = 3;
+    optional string expiration = 4;
+    string secret_access_key = 5;
+}
+
+message Key {
+    string id = 1;
+    string name = 2;
+    KeyPermissions permissions = 3;
+    repeated KeyBucket buckets = 4;
+    string secret_access_key = 5;
+    optional string expiration = 6;
+    string created = 7;
+}
+
+message KeyPermissions {
+    bool create_bucket = 1;
+}
+
+message KeyBucket {
+    string id = 1;
+    repeated string global_aliases = 2;
+    repeated string local_aliases = 3;
+    KeyBucketPermissions permissions = 4;
+}
+
+message KeyBucketPermissions {
+    bool read = 1;
+    bool write = 2;
+    bool owner = 3;
+}

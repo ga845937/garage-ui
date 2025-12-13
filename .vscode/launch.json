@@ -1,0 +1,28 @@
+{
+	"configurations": [
+		{
+			"args": [],
+			"cwd": "${workspaceRoot}",
+			"envFile": "${workspaceRoot}/.env",
+			"name": "server",
+			"preLaunchTask": "cargoBuild",
+			"program": "${workspaceRoot}/target/debug/garage-ui",
+			"request": "launch",
+			"terminal": "console",
+			"type": "lldb"
+		},
+		{
+			"console": "integratedTerminal",
+			"cwd": "${workspaceRoot}/frontend",
+			"envFile": "${workspaceFolder}/.env",
+			"name": "web-ui",
+			"preLaunchTask": "build-ts",
+			"request": "launch",
+			"runtimeArgs": ["run", "dev"],
+			"runtimeExecutable": "npm",
+			"skipFiles": ["<node_internals>/**"],
+			"type": "node"
+		}
+	],
+	"version": "0.2.0"
+}

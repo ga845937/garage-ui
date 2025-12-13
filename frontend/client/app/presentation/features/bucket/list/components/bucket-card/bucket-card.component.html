@@ -1,0 +1,73 @@
+<div class="card" [class.selected]="selected" (click)="on_card_click()">
+    <!-- Glow border effect container -->
+    <div class="card-glow"></div>
+
+    <!-- Selection Checkbox -->
+    @if (selection_mode) {
+        <div class="selection-checkbox" (click)="$event.stopPropagation()">
+            <mat-checkbox 
+                [checked]="selected"
+                (change)="on_selection_change($event.checked)"
+            ></mat-checkbox>
+        </div>
+    }
+    
+    <div class="card-content">
+        <!-- Header: Icon, Name & Action -->
+        <div class="folder-header">
+            <div class="folder-icon">
+                <mat-icon>folder</mat-icon>
+            </div>
+            
+            <h3 class="card-title">{{ get_primary_alias() }}</h3>
+            
+            <div class="quick-actions" (click)="$event.stopPropagation()">
+                <button mat-icon-button class="action-btn" (click)="on_files_click()" [matTooltip]="'bucket.files' | translate">
+                    <mat-icon>folder_open</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bucket ID -->
+        <div class="bucket-info">
+            <div class="id-row">
+                <span class="id-badge">{{ bucket.id }}</span>
+                <app-copy-button
+                    [tooltip]="'bucket.copy_id' | translate"
+                    (copy_click)="copy_id()"
+                ></app-copy-button>
+            </div>
+        </div>
+
+        <!-- Stats: Usage & Objects -->
+        <div class="stats-highlight">
+            <div class="stat-item">
+                <mat-icon>data_usage</mat-icon>
+                <span class="stat-value">{{ format_bytes(bucket.bytes) }}</span>
+            </div>
+            <div class="stat-item">
+                <mat-icon>description</mat-icon>
+                <span class="stat-value">{{ format_number(bucket.objects) }}</span>
+            </div>
+        </div>
+
+        <!-- Footer: Created (left) / Aliases (right) -->
+        <div class="footer">
+            <div class="meta-item" [matTooltip]="date_format.format_full(bucket.created)" matTooltipPosition="above">
+                <mat-icon>cake</mat-icon>
+                <span>{{ date_format.format(bucket.created) }}</span>
+            </div>
+
+            @if (bucket.global_aliases && bucket.global_aliases.length > 0) {
+                <div class="aliases">
+                    @for (alias of visible_aliases; track alias) {
+                        <span class="alias-chip">{{ alias }}</span>
+                    }
+                    @if (extra_aliases_count > 0) {
+                        <span class="alias-chip more" [matTooltip]="all_aliases_tooltip">+{{ extra_aliases_count }}</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

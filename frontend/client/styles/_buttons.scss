@@ -1,0 +1,72 @@
+// Button Mixins
+// 按鈕樣式 mixins
+
+// Action Button (bordered button with hover effects)
+@mixin action-btn {
+    border: 1px solid var(--garage-border);
+    border-radius: 8px;
+    height: 36px;
+    line-height: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    color: var(--garage-text-secondary);
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--garage-text-primary);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    &.primary {
+        border-color: var(--garage-gradient-pink);
+        color: var(--garage-gradient-pink);
+        position: relative;
+        overflow: hidden;
+
+        &:hover {
+            background: rgba(228, 0, 53, 0.1);
+            box-shadow: 0 0 12px rgba(228, 0, 53, 0.3);
+        }
+    }
+
+    &.danger {
+        border-color: #f44336;
+        color: #f44336;
+
+        &:hover {
+            background: rgba(244, 67, 54, 0.1);
+            box-shadow: 0 0 12px rgba(244, 67, 54, 0.3);
+        }
+    }
+}
+
+// Create/Primary Gradient Button
+@mixin create-btn {
+    background: var(--garage-gradient-main);
+    color: white;
+    border-radius: 8px;
+    padding: 0 24px;
+    height: 44px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 16px rgba(228, 0, 53, 0.4);
+        transform: translateY(-1px);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+}

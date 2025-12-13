@@ -1,0 +1,20 @@
+// Visual Effects Mixins
+// 視覺效果 mixins
+
+// Glassmorphism Effect
+@mixin glass-card($bg-alpha: 0.7, $blur: 12px, $border-color: var(--garage-border)) {
+    background: rgba(10, 10, 10, $bg-alpha);
+    backdrop-filter: blur($blur);
+    border: 1px solid $border-color;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+// Hide Scrollbar
+@mixin hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

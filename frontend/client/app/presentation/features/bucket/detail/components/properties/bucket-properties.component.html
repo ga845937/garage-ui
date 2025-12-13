@@ -1,0 +1,135 @@
+<mat-card [formGroup]="form">
+    <mat-card-header>
+        <mat-card-title>
+            <mat-icon>info</mat-icon>
+            {{ i18n.t("bucket.info") }}
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <!-- ID Row -->
+        <div class="field-row">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>ID</mat-label>
+                <input matInput [value]="bucket.id" disabled />
+                <button
+                    mat-icon-button
+                    matSuffix
+                    class="copy-btn"
+                    (click)="on_copy(bucket.id)"
+                    type="button"
+                    [matTooltip]="i18n.t('common.copy')"
+                >
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+
+        <!-- Aliases Row -->
+        <div class="field-row">
+            <div class="faux-form-field">
+                <span class="faux-label">{{ i18n.t("bucket.aliases") }}</span>
+                <div class="faux-input-area">
+                    @if (editable) {
+                        <!-- Editable mode -->
+                        <mat-chip-set class="alias-chips">
+                            @for (alias of editing_aliases(); track alias) {
+                                <mat-chip>
+                                    {{ alias }}
+                                    <button matChipRemove (click)="remove_alias(alias)">
+                                        <mat-icon>cancel</mat-icon>
+                                    </button>
+                                </mat-chip>
+                            }
+                        </mat-chip-set>
+                        <div class="add-alias-row">
+                            <mat-form-field appearance="outline" class="alias-input">
+                                <input
+                                    matInput
+                                    [formControl]="new_alias_input"
+                                    [placeholder]="i18n.t('bucket.add_alias_placeholder')"
+                                    (keydown.enter)="add_alias(); $event.preventDefault()"
+                                />
+                            </mat-form-field>
+                            <button
+                                mat-icon-button
+                                color="primary"
+                                (click)="add_alias()"
+                                [matTooltip]="i18n.t('bucket.add_alias')"
+                                [disabled]="!new_alias_input.value?.trim()"
+                            >
+                                <mat-icon>add_circle</mat-icon>
+                            </button>
+                        </div>
+                    } @else {
+                        <!-- Read-only mode -->
+                        <mat-chip-set class="alias-chips">
+                            @for (alias of bucket.global_aliases; track alias) {
+                                <mat-chip>{{ alias }}</mat-chip>
+                            }
+                        </mat-chip-set>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Website Access Row -->
+        <div class="field-row toggle-field">
+            <span class="toggle-label">{{ i18n.t("bucket.website_access") }}</span>
+            @if (editable) {
+                <mat-slide-toggle formControlName="website_access"></mat-slide-toggle>
+            } @else {
+                <span class="toggle-value">{{ bucket.website_access ? i18n.t("common.enabled") : i18n.t("common.disabled") }}</span>
+            }
+        </div>
+
+        <!-- Quotas Section -->
+        <div class="field-row toggle-field">
+            <span class="toggle-label">{{ i18n.t("bucket.quotas") }}</span>
+            @if (editable) {
+                <mat-slide-toggle formControlName="quotas_enabled"></mat-slide-toggle>
+            } @else {
+                <span class="toggle-value">
+                    {{ has_quotas() ? i18n.t("common.enabled") : i18n.t("bucket.unlimited") }}
+                </span>
+            }
+        </div>
+
+        @if (editable ? form.controls.quotas_enabled.value : has_quotas()) {
+            <div class="quota-section">
+                <!-- Quota Max Size -->
+                <div class="field-row">
+                    @if (editable) {
+                        <div formGroupName="quotas" class="full-width">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ i18n.t("bucket.quota_max_size") }}</mat-label>
+                                <input matInput type="number" formControlName="max_size" placeholder="Bytes" />
+                            </mat-form-field>
+                        </div>
+                    } @else {
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>{{ i18n.t("bucket.quota_max_size") }}</mat-label>
+                            <input matInput [value]="bucket.quotas!.max_size ? format_bytes(bucket.quotas!.max_size) : i18n.t('bucket.unlimited')" disabled />
+                        </mat-form-field>
+                    }
+                </div>
+
+                <!-- Quota Max Objects -->
+                <div class="field-row">
+                    @if (editable) {
+                        <div formGroupName="quotas" class="full-width">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>{{ i18n.t("bucket.quota_max_objects") }}</mat-label>
+                                <input matInput type="number" formControlName="max_objects" />
+                            </mat-form-field>
+                        </div>
+                    } @else {
+                        <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>{{ i18n.t("bucket.quota_max_objects") }}</mat-label>
+                            <input matInput [value]="bucket.quotas!.max_objects ?? i18n.t('bucket.unlimited')" disabled />
+                        </mat-form-field>
+                    }
+                </div>
+            </div>
+        }
+    </mat-card-content>
+</mat-card>

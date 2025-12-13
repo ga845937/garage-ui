@@ -1,0 +1,112 @@
+:host {
+    display: block;
+    min-height: 100%;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+}
+
+.content-wrapper {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+/* Selection Mode Toolbar */
+.selection-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: 12px var(--space-md);
+    background: var(--garage-surface-card);
+    border: 1px solid var(--garage-border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.selection-count {
+    color: var(--garage-text-secondary);
+    font-size: 0.9rem;
+    margin-left: auto;
+}
+
+.confirm-btn {
+    background: var(--garage-status-error) !important;
+    color: white !important;
+    border-radius: 8px;
+}
+
+.confirm-btn:disabled {
+    opacity: 0.5;
+}
+
+.loading-sentinel {
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    text-align: center;
+    color: var(--garage-text-secondary);
+}
+
+.empty-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05); // Consider moving to var if consistent
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-lg);
+    border: 1px solid var(--garage-border);
+    
+    mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: var(--garage-text-muted);
+    }
+}
+
+.empty-state h2 {
+    font-size: 1.5rem;
+    color: var(--garage-text-primary);
+    margin: 0 0 var(--space-sm);
+}
+
+.empty-state p {
+    max-width: 400px;
+    margin: 0 0 var(--space-xl);
+}
+
+.create-btn {
+    background: var(--garage-gradient-main);
+    color: white;
+    border-radius: 8px;
+    padding: 0 var(--space-lg);
+    height: 44px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,117 @@
+@use "styles/effects";
+
+.breadcrumb-container {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 16px;
+    background: var(--garage-surface-card);
+    border-radius: 12px;
+    border: 1px solid var(--garage-border);
+    overflow-x: auto;
+    overflow-x: auto;
+    @include effects.hide-scrollbar;
+}
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.nav-btn {
+    width: 32px;
+    height: 32px;
+    color: var(--garage-text-secondary);
+    --mdc-icon-button-state-layer-size: 32px;
+}
+
+.nav-btn .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.nav-btn:hover:not(:disabled) {
+    color: var(--garage-text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-btn:disabled {
+    color: var(--garage-text-muted);
+    opacity: 0.4;
+}
+
+.separator-line {
+    width: 1px;
+    height: 24px;
+    background: var(--garage-border);
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
+.home-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px;
+    color: var(--garage-text-secondary);
+    flex-shrink: 0;
+    border-radius: 8px;
+}
+
+.home-btn:hover {
+    color: var(--garage-text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.bucket-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--garage-text-primary);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.separator {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--garage-text-muted);
+    flex-shrink: 0;
+}
+
+.path-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 36px;
+    color: var(--garage-text-secondary);
+    font-size: 0.9rem;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.path-btn:hover {
+    color: var(--garage-text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.path-btn.current {
+    color: var(--garage-text-primary);
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.folder-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--garage-gradient-purple);
+}

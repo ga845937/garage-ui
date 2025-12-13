@@ -1,0 +1,130 @@
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    min-width: 480px;
+    max-width: 600px;
+    background: var(--garage-surface-card);
+    border-radius: 16px;
+}
+
+.dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: var(--garage-text-primary);
+    }
+
+    button {
+        color: var(--garage-text-secondary);
+
+        &:hover {
+            color: var(--garage-text-primary);
+        }
+    }
+}
+
+.drop-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border: 2px dashed var(--garage-border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:hover,
+    &.dragging {
+        border-color: var(--garage-gradient-purple);
+        background: rgba(151, 23, 231, 0.08);
+    }
+
+    &.dragging {
+        transform: scale(1.02);
+    }
+}
+
+.drop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    pointer-events: none;
+}
+
+.icon-wrapper {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(228, 0, 53, 0.15), rgba(151, 23, 231, 0.15));
+
+    mat-icon {
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+        color: var(--garage-gradient-purple);
+    }
+}
+
+.drop-text {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--garage-text-secondary);
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0;
+
+    &::before,
+    &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--garage-border);
+    }
+
+    span {
+        color: var(--garage-text-muted);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+    }
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+
+    button {
+        flex: 1;
+        max-width: 200px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        border-color: var(--garage-border);
+        color: var(--garage-text-primary);
+
+        mat-icon {
+            margin-right: 8px;
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--garage-text-secondary);
+        }
+    }
+}

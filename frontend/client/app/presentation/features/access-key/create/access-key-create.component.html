@@ -1,0 +1,27 @@
+<mat-card class="form-card">
+    <mat-card-content>
+        <form [formGroup]="form">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'common.name' | translate }}</mat-label>
+                <input matInput formControlName="name" />
+                <mat-hint>{{ 'access_key.name_hint' | translate }}</mat-hint>
+                @if (form.get("name")?.hasError("required")) {
+                    <mat-error>{{ 'common.name' | translate }} is required</mat-error>
+                }
+            </mat-form-field>
+
+            <app-datetime-picker
+                [label]="'access_key.expiration' | translate"
+                [value]="form.get('expiration')?.value"
+                [hint]="'access_key.expiration_hint' | translate"
+                (value_change)="on_expiration_change($event)"
+            ></app-datetime-picker>
+
+            <div class="checkbox-field">
+                <mat-checkbox formControlName="allow_create_bucket">
+                    {{ 'access_key.allow_create_bucket' | translate }}
+                </mat-checkbox>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>
