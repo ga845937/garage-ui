@@ -25,45 +25,50 @@
         </div>
     }
 
-    <!-- Grid View -->
-    @if (store.items().length > 0) {
-        <div class="card-grid">
-            @for (bucket of store.items(); track bucket.id) {
-                <app-bucket-card 
-                    [bucket]="bucket"
-                    [selection_mode]="selection_mode()"
-                    [selected]="store.selected_ids().includes(bucket.id)"
-                    (card_click)="open_detail(bucket.id)"
-                    (files_click)="open_detail_files(bucket)"
-                    (delete_click)="delete_single(bucket.id)"
-                    (selection_change)="toggle_item_selection(bucket.id)"
-                ></app-bucket-card>
-            }
-        </div>
-
-        <!-- Loading sentinel for infinite scroll -->
-        <div #loading_sentinel class="loading-sentinel">
-            @if (layout.loading()) {
-                <mat-spinner diameter="32"></mat-spinner>
-            }
-        </div>
-    } @else if (layout.loading()) {
-        <div class="loading-container">
-            <mat-spinner diameter="48"></mat-spinner>
-        </div>
-    } @else {
-        <!-- Empty State -->
-        <div class="empty-state">
-            <div class="empty-icon-wrapper">
-                <mat-icon>folder</mat-icon>
+    <!-- Scrollable Content -->
+    <div class="list-container">
+        <div class="list-container-inner">
+        <!-- Grid View -->
+        @if (store.items().length > 0) {
+            <div class="card-grid">
+                @for (bucket of store.items(); track bucket.id) {
+                    <app-bucket-card 
+                        [bucket]="bucket"
+                        [selection_mode]="selection_mode()"
+                        [selected]="store.selected_ids().includes(bucket.id)"
+                        (card_click)="open_detail(bucket.id)"
+                        (files_click)="open_detail_files(bucket)"
+                        (delete_click)="delete_single(bucket.id)"
+                        (selection_change)="toggle_item_selection(bucket.id)"
+                    ></app-bucket-card>
+                }
             </div>
-            <h2>{{ 'bucket.empty' | translate }}</h2>
-            <p>{{ 'bucket.empty_desc' | translate }}</p>
-            <button mat-flat-button class="create-btn" (click)="create_bucket()">
-                <mat-icon>add</mat-icon>
-                {{ 'bucket.create_first' | translate }}
-            </button>
-        </div>
-    }
+
+            <!-- Loading sentinel for infinite scroll -->
+            <div #loading_sentinel class="loading-sentinel">
+                @if (layout.loading()) {
+                    <mat-spinner diameter="32"></mat-spinner>
+                }
+            </div>
+        } @else if (layout.loading()) {
+            <div class="loading-container">
+                <mat-spinner diameter="48"></mat-spinner>
+            </div>
+        } @else {
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon-wrapper">
+                    <mat-icon>folder</mat-icon>
+                </div>
+                <h2>{{ 'bucket.empty' | translate }}</h2>
+                <p>{{ 'bucket.empty_desc' | translate }}</p>
+                <button mat-flat-button class="create-btn" (click)="create_bucket()">
+                    <mat-icon>add</mat-icon>
+                    {{ 'bucket.create_first' | translate }}
+                </button>
+            </div>
+        }
+        </div> <!-- End list-container-inner -->
+    </div>
 </div>
 

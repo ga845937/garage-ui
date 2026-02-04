@@ -14,16 +14,28 @@ export class UploadObjectCommand {
 		bucket_name: string,
 		key: string,
 		file: File,
+		existing_task?: { id: string; signal: AbortSignal },
 	): Promise<void> {
 		const filename = key.split("/").pop() || key;
 
-		const { id: task_id, signal } = this.task_service.add_task({
-			bucket_id,
-			bucket_name,
-			filename,
-			object_key: key,
-			type: "upload",
-		});
+		let task_id: string;
+		let signal: AbortSignal;
+
+		if (existing_task) {
+			task_id = existing_task.id;
+			signal = existing_task.signal;
+			this.task_service.start_task(task_id);
+		} else {
+			const result = this.task_service.add_task({
+				bucket_id,
+				bucket_name,
+				filename,
+				object_key: key,
+				type: "upload",
+			});
+			task_id = result.id;
+			signal = result.signal;
+		}
 
 		try {
 			await this.service.upload_file_stream(

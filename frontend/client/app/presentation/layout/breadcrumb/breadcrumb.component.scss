@@ -1,15 +1,24 @@
 @use "styles/effects";
 
+:host {
+    display: flex;
+    flex: 1;
+    min-width: 0; /* Allow shrinking */
+    margin: 0 16px; /* Spacing from neighbors */
+    justify-content: center; /* Center the breadcrumb pill */
+}
+
 .breadcrumb-container {
     display: flex;
     align-items: center;
     gap: 2px;
-    padding: 8px 16px;
+    padding: 4px 8px; /* Compact padding */
     background: var(--garage-surface-card);
     border-radius: 12px;
     border: 1px solid var(--garage-border);
     overflow-x: auto;
-    overflow-x: auto;
+    width: auto; /* Fit content, don't stretch */
+    max-width: 100%;
     @include effects.hide-scrollbar;
 }
 
@@ -21,10 +30,17 @@
 }
 
 .nav-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px; /* Match other buttons */
+    height: 36px; /* Match other buttons */
     color: var(--garage-text-secondary);
-    --mdc-icon-button-state-layer-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px; /* Match others */
+    
+    mat-icon {
+        color: currentColor;
+    }
 }
 
 .nav-btn .mat-icon {
@@ -61,6 +77,10 @@
     color: var(--garage-text-secondary);
     flex-shrink: 0;
     border-radius: 8px;
+
+    mat-icon {
+        color: currentColor;
+    }
 }
 
 .home-btn:hover {

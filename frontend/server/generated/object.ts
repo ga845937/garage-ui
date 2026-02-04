@@ -16,6 +16,25 @@ export interface ListObjectsResponse {
   data: ObjectInfo[];
   next_continuation_token?: string | undefined;
   is_truncated: boolean;
+  /** 虛擬資料夾列表（使用 delimiter 時回傳） */
+  common_prefixes: string[];
+  /** 各資料夾的統計資訊 */
+  folder_stats: { [key: string]: FolderStats };
+}
+
+export interface ListObjectsResponse_FolderStatsEntry {
+  key: string;
+  value: FolderStats | undefined;
+}
+
+/** 資料夾統計資訊 */
+export interface FolderStats {
+  /** 檔案數量（不含子資料夾） */
+  count: number;
+  /** 檔案總大小（bytes） */
+  size: number;
+  /** 如果 true，表示數量超過 1000，顯示為 "1000+" */
+  is_truncated: boolean;
 }
 
 export interface ObjectMetadataResponse {
@@ -56,7 +75,11 @@ export interface ListObjectsRequest {
   bucket: string;
   prefix?: string | undefined;
   continuation_token?: string | undefined;
-  max_keys?: number | undefined;
+  max_keys?:
+    | number
+    | undefined;
+  /** 分隔符，通常是 "/" 用於虛擬資料夾分頁 */
+  delimiter?: string | undefined;
 }
 
 export interface GetObjectMetadataRequest {
@@ -213,7 +236,14 @@ export interface PreSignedUrl {
 }
 
 function createBaseListObjectsResponse(): ListObjectsResponse {
-  return { trace_id: "", data: [], next_continuation_token: undefined, is_truncated: false };
+  return {
+    trace_id: "",
+    data: [],
+    next_continuation_token: undefined,
+    is_truncated: false,
+    common_prefixes: [],
+    folder_stats: {},
+  };
 }
 
 export const ListObjectsResponse: MessageFns<ListObjectsResponse> = {
@@ -230,6 +260,12 @@ export const ListObjectsResponse: MessageFns<ListObjectsResponse> = {
     if (message.is_truncated !== false) {
       writer.uint32(32).bool(message.is_truncated);
     }
+    for (const v of message.common_prefixes) {
+      writer.uint32(42).string(v!);
+    }
+    globalThis.Object.entries(message.folder_stats).forEach(([key, value]: [string, FolderStats]) => {
+      ListObjectsResponse_FolderStatsEntry.encode({ key: key as any, value }, writer.uint32(50).fork()).join();
+    });
     return writer;
   },
 
@@ -272,6 +308,25 @@ export const ListObjectsResponse: MessageFns<ListObjectsResponse> = {
           message.is_truncated = reader.bool();
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.common_prefixes.push(reader.string());
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          const entry6 = ListObjectsResponse_FolderStatsEntry.decode(reader, reader.uint32());
+          if (entry6.value !== undefined) {
+            message.folder_stats[entry6.key] = entry6.value;
+          }
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -299,6 +354,28 @@ export const ListObjectsResponse: MessageFns<ListObjectsResponse> = {
         : isSet(object.is_truncated)
         ? globalThis.Boolean(object.is_truncated)
         : false,
+      common_prefixes: globalThis.Array.isArray(object?.commonPrefixes)
+        ? object.commonPrefixes.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.common_prefixes)
+        ? object.common_prefixes.map((e: any) => globalThis.String(e))
+        : [],
+      folder_stats: isObject(object.folderStats)
+        ? (globalThis.Object.entries(object.folderStats) as [string, any][]).reduce(
+          (acc: { [key: string]: FolderStats }, [key, value]: [string, any]) => {
+            acc[key] = FolderStats.fromJSON(value);
+            return acc;
+          },
+          {},
+        )
+        : isObject(object.folder_stats)
+        ? (globalThis.Object.entries(object.folder_stats) as [string, any][]).reduce(
+          (acc: { [key: string]: FolderStats }, [key, value]: [string, any]) => {
+            acc[key] = FolderStats.fromJSON(value);
+            return acc;
+          },
+          {},
+        )
+        : {},
     };
   },
 
@@ -316,6 +393,18 @@ export const ListObjectsResponse: MessageFns<ListObjectsResponse> = {
     if (message.is_truncated !== false) {
       obj.isTruncated = message.is_truncated;
     }
+    if (message.common_prefixes?.length) {
+      obj.commonPrefixes = message.common_prefixes;
+    }
+    if (message.folder_stats) {
+      const entries = globalThis.Object.entries(message.folder_stats) as [string, FolderStats][];
+      if (entries.length > 0) {
+        obj.folderStats = {};
+        entries.forEach(([k, v]) => {
+          obj.folderStats[k] = FolderStats.toJSON(v);
+        });
+      }
+    }
     return obj;
   },
 
@@ -327,6 +416,194 @@ export const ListObjectsResponse: MessageFns<ListObjectsResponse> = {
     message.trace_id = object.trace_id ?? "";
     message.data = object.data?.map((e) => ObjectInfo.fromPartial(e)) || [];
     message.next_continuation_token = object.next_continuation_token ?? undefined;
+    message.is_truncated = object.is_truncated ?? false;
+    message.common_prefixes = object.common_prefixes?.map((e) => e) || [];
+    message.folder_stats = (globalThis.Object.entries(object.folder_stats ?? {}) as [string, FolderStats][]).reduce(
+      (acc: { [key: string]: FolderStats }, [key, value]: [string, FolderStats]) => {
+        if (value !== undefined) {
+          acc[key] = FolderStats.fromPartial(value);
+        }
+        return acc;
+      },
+      {},
+    );
+    return message;
+  },
+};
+
+function createBaseListObjectsResponse_FolderStatsEntry(): ListObjectsResponse_FolderStatsEntry {
+  return { key: "", value: undefined };
+}
+
+export const ListObjectsResponse_FolderStatsEntry: MessageFns<ListObjectsResponse_FolderStatsEntry> = {
+  encode(message: ListObjectsResponse_FolderStatsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== undefined) {
+      FolderStats.encode(message.value, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListObjectsResponse_FolderStatsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListObjectsResponse_FolderStatsEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = FolderStats.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ListObjectsResponse_FolderStatsEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? FolderStats.fromJSON(object.value) : undefined,
+    };
+  },
+
+  toJSON(message: ListObjectsResponse_FolderStatsEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== undefined) {
+      obj.value = FolderStats.toJSON(message.value);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListObjectsResponse_FolderStatsEntry>, I>>(
+    base?: I,
+  ): ListObjectsResponse_FolderStatsEntry {
+    return ListObjectsResponse_FolderStatsEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListObjectsResponse_FolderStatsEntry>, I>>(
+    object: I,
+  ): ListObjectsResponse_FolderStatsEntry {
+    const message = createBaseListObjectsResponse_FolderStatsEntry();
+    message.key = object.key ?? "";
+    message.value = (object.value !== undefined && object.value !== null)
+      ? FolderStats.fromPartial(object.value)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseFolderStats(): FolderStats {
+  return { count: 0, size: 0, is_truncated: false };
+}
+
+export const FolderStats: MessageFns<FolderStats> = {
+  encode(message: FolderStats, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.count !== 0) {
+      writer.uint32(8).int64(message.count);
+    }
+    if (message.size !== 0) {
+      writer.uint32(16).int64(message.size);
+    }
+    if (message.is_truncated !== false) {
+      writer.uint32(24).bool(message.is_truncated);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): FolderStats {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseFolderStats();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.count = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.size = longToNumber(reader.int64());
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.is_truncated = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): FolderStats {
+    return {
+      count: isSet(object.count) ? globalThis.Number(object.count) : 0,
+      size: isSet(object.size) ? globalThis.Number(object.size) : 0,
+      is_truncated: isSet(object.isTruncated)
+        ? globalThis.Boolean(object.isTruncated)
+        : isSet(object.is_truncated)
+        ? globalThis.Boolean(object.is_truncated)
+        : false,
+    };
+  },
+
+  toJSON(message: FolderStats): unknown {
+    const obj: any = {};
+    if (message.count !== 0) {
+      obj.count = Math.round(message.count);
+    }
+    if (message.size !== 0) {
+      obj.size = Math.round(message.size);
+    }
+    if (message.is_truncated !== false) {
+      obj.isTruncated = message.is_truncated;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<FolderStats>, I>>(base?: I): FolderStats {
+    return FolderStats.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<FolderStats>, I>>(object: I): FolderStats {
+    const message = createBaseFolderStats();
+    message.count = object.count ?? 0;
+    message.size = object.size ?? 0;
     message.is_truncated = object.is_truncated ?? false;
     return message;
   },
@@ -889,7 +1166,7 @@ export const PreSignedUrlResponse: MessageFns<PreSignedUrlResponse> = {
 };
 
 function createBaseListObjectsRequest(): ListObjectsRequest {
-  return { bucket: "", prefix: undefined, continuation_token: undefined, max_keys: undefined };
+  return { bucket: "", prefix: undefined, continuation_token: undefined, max_keys: undefined, delimiter: undefined };
 }
 
 export const ListObjectsRequest: MessageFns<ListObjectsRequest> = {
@@ -905,6 +1182,9 @@ export const ListObjectsRequest: MessageFns<ListObjectsRequest> = {
     }
     if (message.max_keys !== undefined) {
       writer.uint32(32).int32(message.max_keys);
+    }
+    if (message.delimiter !== undefined) {
+      writer.uint32(42).string(message.delimiter);
     }
     return writer;
   },
@@ -948,6 +1228,14 @@ export const ListObjectsRequest: MessageFns<ListObjectsRequest> = {
           message.max_keys = reader.int32();
           continue;
         }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.delimiter = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -971,6 +1259,7 @@ export const ListObjectsRequest: MessageFns<ListObjectsRequest> = {
         : isSet(object.max_keys)
         ? globalThis.Number(object.max_keys)
         : undefined,
+      delimiter: isSet(object.delimiter) ? globalThis.String(object.delimiter) : undefined,
     };
   },
 
@@ -988,6 +1277,9 @@ export const ListObjectsRequest: MessageFns<ListObjectsRequest> = {
     if (message.max_keys !== undefined) {
       obj.maxKeys = Math.round(message.max_keys);
     }
+    if (message.delimiter !== undefined) {
+      obj.delimiter = message.delimiter;
+    }
     return obj;
   },
 
@@ -1000,6 +1292,7 @@ export const ListObjectsRequest: MessageFns<ListObjectsRequest> = {
     message.prefix = object.prefix ?? undefined;
     message.continuation_token = object.continuation_token ?? undefined;
     message.max_keys = object.max_keys ?? undefined;
+    message.delimiter = object.delimiter ?? undefined;
     return message;
   },
 };
@@ -3233,6 +3526,10 @@ function longToNumber(int64: { toString(): string }): number {
     throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
   }
   return num;
+}
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

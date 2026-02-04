@@ -1,5 +1,6 @@
 //! Object gRPC service implementation with streaming and presigned URL support
 
+use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -8,7 +9,7 @@ use futures::{Stream, StreamExt};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status, Streaming};
-use tracing::{error, info};
+use tracing::{error, info, debug};
 use aws_sdk_s3::primitives::ByteStream;
 
 use crate::application::commands::object::{CopyObjectCommand, DeleteObjectsCommand};
@@ -38,6 +39,7 @@ use crate::infrastructure::grpc::generated::object::{
     ObjectInfo, ObjectMetadata, UploadResult, UploadInitiated, UploadProgress as ProtoUploadProgress,
     CopyResult, DeleteError, PreSignedUrl,
     DownloadMetadata, DownloadChunkResponse,
+    FolderStats,
 };
 use crate::infrastructure::s3::UploadProgress;
 
@@ -72,6 +74,64 @@ impl ObjectGrpcService {
             object_repository,
         }
     }
+
+    /// 並行計算每個資料夾的統計資訊（檔案數量和大小）
+    async fn compute_folder_stats(
+        &self,
+        bucket: &str,
+        prefixes: &[String],
+    ) -> HashMap<String, FolderStats> {
+        use futures::future::join_all;
+
+        if prefixes.is_empty() {
+            return HashMap::new();
+        }
+
+        let tasks: Vec<_> = prefixes
+            .iter()
+            .map(|prefix| {
+                let bucket = bucket.to_string();
+                let prefix = prefix.clone();
+                let repo = Arc::clone(&self.object_repository);
+                
+                async move {
+                    // 列出資料夾內所有物件（不使用 delimiter，最多 1000 個）
+                    match repo.list(&bucket, Some(&prefix), None, Some(1000), None).await {
+                        Ok(result) => {
+                            // 計算統計資訊（排除資料夾標記）
+                            let mut count = 0i64;
+                            let mut size = 0i64;
+                            
+                            for obj in &result.objects {
+                                // 排除資料夾標記（以 / 結尾的空物件）
+                                if !obj.key.ends_with('/') {
+                                    count += 1;
+                                    size += obj.size;
+                                }
+                            }
+                            
+                            let stats = FolderStats {
+                                count,
+                                size,
+                                is_truncated: result.is_truncated,
+                            };
+                            
+                            Some((prefix, stats))
+                        }
+                        Err(e) => {
+                            debug!(prefix = %prefix, error = %e, "Failed to get folder stats");
+                            None
+                        }
+                    }
+                }
+            })
+            .collect();
+
+        // 並行執行所有任務
+        let results = join_all(tasks).await;
+        
+        results.into_iter().flatten().collect()
+    }
 }
 
 #[tonic::async_trait]
@@ -86,11 +146,13 @@ impl ObjectService for ObjectGrpcService {
         let log = grpc_log!("ObjectService", "ListObjects", &req);
         let trace_id = get_trace_id();
 
+        let bucket = req.bucket.clone();
         let query = ListObjectsQuery::new(
             req.bucket,
             req.prefix,
             req.continuation_token,
             req.max_keys,
+            req.delimiter,
         )
         .map_err(domain_error_to_status)?;
 
@@ -99,6 +161,9 @@ impl ObjectService for ObjectGrpcService {
             .handle(query)
             .await
             .map_err(domain_error_to_status)?;
+
+        // 並行計算每個資料夾的統計資訊
+        let folder_stats = self.compute_folder_stats(&bucket, &result.common_prefixes).await;
 
         let response = ListObjectsResponse {
             trace_id: trace_id.to_string(),
@@ -115,6 +180,8 @@ impl ObjectService for ObjectGrpcService {
                 .collect(),
             next_continuation_token: result.next_continuation_token,
             is_truncated: result.is_truncated,
+            common_prefixes: result.common_prefixes,
+            folder_stats,
         };
 
         log.ok(&response);

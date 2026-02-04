@@ -1,26 +1,81 @@
 :host {
     display: block;
-    min-height: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevent body scroll */
+}
+
+.content-wrapper {
+    animation: fadeIn 0.4s ease-out;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 20px; /* Spacing from bottom */
 }
 
 .loading-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 60vh;
+    height: 100%;
 }
 
-.content-wrapper {
-    animation: fadeIn 0.4s ease-out;
+.list-container {
+    flex: 1;
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    overflow: hidden; /* No scroll here, border stays fixed */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Inner scrollable container */
+.list-container-inner {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-lg);
+    position: relative;
+    z-index: 0; /* Below the border pseudo-element */
+    
+    /* Custom Scrollbar for Webkit */
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: var(--garage-border);
+        border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--garage-text-muted);
+    }
+}
+
+/* Gradient border effect via pseudo-element */
+.list-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: var(--garage-gradient-main);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 10; /* Above scrolling content */
 }
 
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); // Different minmax than keys, keep as is or unify? Keys are 320px.
-    gap: 20px; // Magic number - close to 24px (space-lg) or 16px (space-md). Guidelines say 24px is space-lg.
-    // Let's optimize to var(--space-lg) = 24px for consistency unless strict 20px needed.
-    // User might want consistency. I'll use 24px/space-lg to match access-key-list.
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--space-lg);
+    position: relative;
+    z-index: 2; /* Above the border pseudo-element */
 }
 
 .loading-sentinel {
@@ -28,6 +83,8 @@
     justify-content: center;
     padding: var(--space-lg) 0;
     min-height: 60px;
+    position: relative;
+    z-index: 2;
 }
 
 /* Selection Mode Toolbar */
@@ -40,6 +97,7 @@
     border: 1px solid var(--garage-border);
     border-radius: 12px;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 .selection-count {
@@ -64,9 +122,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 60vh;
+    height: 100%; /* Fill container */
     text-align: center;
     color: var(--garage-text-secondary);
+    min-height: 400px;
+    position: relative;
+    z-index: 2;
 }
 
 .empty-icon-wrapper {

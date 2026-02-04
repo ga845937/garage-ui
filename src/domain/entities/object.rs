@@ -45,6 +45,7 @@ pub struct DownloadMetadata {
 #[derive(Debug, Clone)]
 pub struct ListObjectsResult {
     pub objects: Vec<ObjectInfo>,
+    pub common_prefixes: Vec<String>,
     pub next_continuation_token: Option<String>,
     pub is_truncated: bool,
 }

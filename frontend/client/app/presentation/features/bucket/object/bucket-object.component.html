@@ -60,11 +60,14 @@
         <!-- Drop Zone -->
         <div
             class="file-container"
-            (dragover)="on_drag_over($event)"
-            (dragleave)="on_drag_leave($event)"
-            (drop)="on_drop($event)"
             [class.drag-over]="is_dragging()"
         >
+            <div 
+                class="file-container-inner"
+                (dragover)="on_drag_over($event)"
+                (dragleave)="on_drag_leave($event)"
+                (drop)="on_drop($event)"
+            >
             <!-- Drag Overlay -->
             @if (is_dragging()) {
                 <div class="drop-overlay">
@@ -223,9 +226,10 @@
 
                         <tr mat-header-row *matHeaderRowDef="displayed_columns()"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayed_columns()"></tr>
-                    </table>
+                </table>
                 }
             }
+            </div> <!-- End file-container-inner -->
         </div>
     }
 </div>

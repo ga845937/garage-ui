@@ -54,7 +54,7 @@ export class BucketObjectStore {
 	}
 
 	public set_folder_stats(
-		stats: Record<string, { count: number; size: number }>,
+		stats: Record<string, { count: number; size: number; is_truncated: boolean }>,
 	): void {
 		this.state.folder_stats.set(stats);
 	}

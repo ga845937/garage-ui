@@ -21,6 +21,7 @@ export interface ObjectItem {
 	etag?: string;
 	object_count?: number;
 	total_size?: number;
+	is_truncated?: boolean; // 如果 true，表示檔案數量超過 1000
 }
 
 @Component({

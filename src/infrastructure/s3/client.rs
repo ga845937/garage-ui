@@ -455,13 +455,20 @@ impl GarageS3Client {
 
     // ============ Object Operations ============
 
-    /// List objects in a bucket with pagination
+    /// List objects in a bucket with pagination and optional delimiter for virtual folder navigation
+    /// 
+    /// When `delimiter` is provided (usually "/"), the response will include:
+    /// - `objects`: Files at the current level (not inside subfolders)
+    /// - `common_prefixes`: Virtual folder prefixes at the current level
+    /// 
+    /// This enables folder-like navigation without listing all objects at once.
     pub async fn list_objects(
         &self,
         bucket: &str,
         prefix: Option<&str>,
         continuation_token: Option<&str>,
         max_keys: Option<i32>,
+        delimiter: Option<&str>,
     ) -> Result<ListObjectsOutput, DomainError> {
         let trace_id = get_trace_id();
 
@@ -475,6 +482,9 @@ impl GarageS3Client {
         }
         if let Some(max) = max_keys {
             request = request.max_keys(max);
+        }
+        if let Some(d) = delimiter {
+            request = request.delimiter(d);
         }
 
         let response = request.send().await.map_err(|e| {
@@ -500,6 +510,13 @@ impl GarageS3Client {
             })
             .collect();
 
+        // Extract common prefixes (virtual folders) when delimiter is used
+        let common_prefixes: Vec<String> = response
+            .common_prefixes()
+            .iter()
+            .filter_map(|cp| cp.prefix().map(|s| s.to_string()))
+            .collect();
+
         let next_token = response.next_continuation_token().map(|s| s.to_string());
         let is_truncated = response.is_truncated().unwrap_or(false);
         let prefix = response.prefix().map(|s| s.to_string());
@@ -508,12 +525,14 @@ impl GarageS3Client {
             trace_id = %trace_id,
             bucket = %bucket,
             object_count = objects.len(),
+            common_prefix_count = common_prefixes.len(),
             is_truncated = %is_truncated,
             "Listed objects"
         );
 
         Ok(ListObjectsOutput {
             objects,
+            common_prefixes,
             next_continuation_token: next_token,
             is_truncated,
             prefix,
@@ -658,9 +677,9 @@ impl GarageS3Client {
         const MAX_KEYS_PER_REQUEST: i32 = 1000;
 
         loop {
-            // 列出所有以 prefix 開頭的物件
+            // 列出所有以 prefix 開頭的物件（不使用 delimiter，以便遞迴刪除所有物件）
             let list_result = self
-                .list_objects(bucket, Some(prefix), continuation_token.as_deref(), Some(MAX_KEYS_PER_REQUEST))
+                .list_objects(bucket, Some(prefix), continuation_token.as_deref(), Some(MAX_KEYS_PER_REQUEST), None)
                 .await?;
 
             if list_result.objects.is_empty() {
@@ -929,6 +948,7 @@ pub struct ObjectMetadata {
 #[derive(Debug, Clone)]
 pub struct ListObjectsOutput {
     pub objects: Vec<ObjectInfo>,
+    pub common_prefixes: Vec<String>,
     pub next_continuation_token: Option<String>,
     pub is_truncated: bool,
     pub prefix: Option<String>,

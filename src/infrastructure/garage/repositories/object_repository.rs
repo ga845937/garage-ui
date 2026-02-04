@@ -43,10 +43,11 @@ impl ObjectRepository for GarageObjectRepository {
         prefix: Option<&str>,
         continuation_token: Option<&str>,
         max_keys: Option<i32>,
+        delimiter: Option<&str>,
     ) -> Result<ListObjectsResult, DomainError> {
         let output = self
             .client
-            .list_objects(bucket, prefix, continuation_token, max_keys)
+            .list_objects(bucket, prefix, continuation_token, max_keys, delimiter)
             .await?;
 
         Ok(ListObjectsResult {
@@ -61,6 +62,7 @@ impl ObjectRepository for GarageObjectRepository {
                     storage_class: o.storage_class,
                 })
                 .collect(),
+            common_prefixes: output.common_prefixes,
             next_continuation_token: output.next_continuation_token,
             is_truncated: output.is_truncated,
         })

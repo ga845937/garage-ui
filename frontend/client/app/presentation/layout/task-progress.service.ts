@@ -5,7 +5,7 @@ export interface Task {
 	type: "upload" | "download";
 	filename: string;
 	progress: number; // 0-100
-	status: "running" | "paused" | "error" | "completed" | "cancelled";
+	status: "queued" | "running" | "paused" | "error" | "completed" | "cancelled";
 	// Navigation metadata
 	bucket_id?: string;
 	bucket_name?: string;
@@ -21,24 +21,38 @@ export class TaskProgressService {
 	private abort_controllers = new Map<string, AbortController>();
 
 	public active_tasks_count = computed(
-		() => this.tasks().filter((t) => t.status === "running").length,
+		() =>
+			this.tasks().filter((t) => t.status === "running" || t.status === "queued")
+				.length,
 	);
 
-	public add_task(task: Omit<Task, "id" | "progress" | "status">): { id: string; signal: AbortSignal } {
-		const id = crypto.randomUUID();
+	public add_task(
+		task: Omit<Task, "id" | "progress" | "status">,
+		status: Task["status"] = "running",
+	): {
+		id: string;
+		signal: AbortSignal;
+	} {
+		const id = `${task.filename}_${Date.now()}`;
 		const controller = new AbortController();
-		
+
 		const new_task: Task = {
 			...task,
 			id,
 			progress: 0,
-			status: "running",
+			status,
 		};
-		
+
 		this.abort_controllers.set(id, controller);
-		this.tasks.update((tasks) => [...tasks, new_task]);
-		
+		this.tasks.update((tasks) => [new_task, ...tasks]);
+
 		return { id, signal: controller.signal };
+	}
+
+	public start_task(id: string): void {
+		this.tasks.update((tasks) =>
+			tasks.map((t) => (t.id === id ? { ...t, status: "running" } : t)),
+		);
 	}
 
 	public update_progress(id: string, progress: number): void {
@@ -66,9 +80,7 @@ export class TaskProgressService {
 			this.abort_controllers.delete(id);
 		}
 		this.tasks.update((tasks) =>
-			tasks.map((t) =>
-				t.id === id ? { ...t, status: "cancelled" } : t,
-			),
+			tasks.map((t) => (t.id === id ? { ...t, status: "cancelled" } : t)),
 		);
 		setTimeout(() => {
 			this.remove_task(id);

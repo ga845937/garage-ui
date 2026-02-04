@@ -204,6 +204,7 @@ export class BucketObjectComponent implements OnInit, OnDestroy {
 
 		const folders = this.store.prefixes().map((p) => ({
 			is_folder: true,
+			is_truncated: stats[p]?.is_truncated || false,
 			key: p,
 			name: p
 				.replace(this.store.current_prefix(), "")

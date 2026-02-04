@@ -23,13 +23,14 @@ pub struct DownloadResult {
 pub trait ObjectRepository: Send + Sync {
     // ============ Query Operations ============
 
-    /// List objects in a bucket with optional prefix and pagination
+    /// List objects in a bucket with optional prefix, pagination, and delimiter for virtual folder navigation
     async fn list(
         &self,
         bucket: &str,
         prefix: Option<&str>,
         continuation_token: Option<&str>,
         max_keys: Option<i32>,
+        delimiter: Option<&str>,
     ) -> Result<ListObjectsResult, DomainError>;
 
     /// Get object metadata (HEAD request)

@@ -25,42 +25,47 @@
         </div>
     }
 
-    <!-- Grid View -->
-    @if (store.items().length > 0) {
-        <div class="card-grid">
-            @for (key of store.items(); track key.id) {
-                <app-access-key-card 
-                    [key]="key"
-                    [selection_mode]="selection_mode()"
-                    [selected]="store.selected_ids().includes(key.id)"
-                    (card_click)="open_detail(key)"
-                    (selection_change)="toggle_item_selection(key)"
-                ></app-access-key-card>
-            }
-        </div>
-
-        <!-- Loading / End Sentinel -->
-        <div #loading_sentinel class="loading-sentinel">
-            @if (layout.loading()) {
-                <mat-spinner diameter="32"></mat-spinner>
-            }
-        </div>
-    } @else if (layout.loading()) {
-        <div class="loading-container">
-            <mat-spinner diameter="48"></mat-spinner>
-        </div>
-    } @else {
-        <!-- Empty State -->
-        <div class="empty-state">
-            <div class="empty-icon-wrapper">
-                <mat-icon>vpn_key</mat-icon>
+    <!-- Scrollable Content -->
+    <div class="list-container">
+        <div class="list-container-inner">
+        <!-- Grid View -->
+        @if (store.items().length > 0) {
+            <div class="card-grid">
+                @for (key of store.items(); track key.id) {
+                    <app-access-key-card 
+                        [key]="key"
+                        [selection_mode]="selection_mode()"
+                        [selected]="store.selected_ids().includes(key.id)"
+                        (card_click)="open_detail(key)"
+                        (selection_change)="toggle_item_selection(key)"
+                    ></app-access-key-card>
+                }
             </div>
-            <h2>{{ 'access_key.empty' | translate }}</h2>
-            <p>{{ 'access_key.empty_desc' | translate }}</p>
-            <button mat-flat-button class="create-btn" (click)="create_key()">
-                <mat-icon>add</mat-icon>
-                {{ 'access_key.create_first' | translate }}
-            </button>
-        </div>
-    }
+
+            <!-- Loading / End Sentinel -->
+            <div #loading_sentinel class="loading-sentinel">
+                @if (layout.loading()) {
+                    <mat-spinner diameter="32"></mat-spinner>
+                }
+            </div>
+        } @else if (layout.loading()) {
+            <div class="loading-container">
+                <mat-spinner diameter="48"></mat-spinner>
+            </div>
+        } @else {
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon-wrapper">
+                    <mat-icon>vpn_key</mat-icon>
+                </div>
+                <h2>{{ 'access_key.empty' | translate }}</h2>
+                <p>{{ 'access_key.empty_desc' | translate }}</p>
+                <button mat-flat-button class="create-btn" (click)="create_key()">
+                    <mat-icon>add</mat-icon>
+                    {{ 'access_key.create_first' | translate }}
+                </button>
+            </div>
+        }
+        </div> <!-- End list-container-inner -->
+    </div>
 </div>

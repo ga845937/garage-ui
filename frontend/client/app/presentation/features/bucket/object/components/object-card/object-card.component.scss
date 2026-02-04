@@ -2,6 +2,7 @@
 
 :host {
     display: block;
+    height: 100%; /* Ensure host fills the grid cell */
 }
 
 .card {
@@ -12,9 +13,9 @@
     align-items: center;
     padding: 16px 12px;
     cursor: pointer;
-    min-height: 120px;
+    height: 100%; /* Fill host height */
     transition: all 0.2s;
-    border: 1px solid transparent;
+    border: 1px solid transparent; /* Transparent border for size stability */
 }
 
 .card.selected {
@@ -122,7 +123,11 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Prevent wrapping as requested */
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .stat {

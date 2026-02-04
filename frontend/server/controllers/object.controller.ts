@@ -55,12 +55,15 @@ class ObjectController {
 		const response = await object_client.ListObjects({
 			bucket: payload.bucket_name,
 			continuation_token: payload.continuation_token,
+			delimiter: payload.delimiter,
 			max_keys: payload.max_keys,
 			prefix: payload.prefix,
 		});
 
 		const data: ObjectList = {
+			common_prefixes: response.common_prefixes,
 			data: response.data,
+			folder_stats: response.folder_stats,
 			is_truncated: response.is_truncated,
 			next_continuation_token: response.next_continuation_token,
 		};

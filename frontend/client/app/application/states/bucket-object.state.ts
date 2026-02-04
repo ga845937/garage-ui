@@ -22,7 +22,7 @@ export class BucketObjectState {
 	public readonly loading_objects = signal(false);
 	public readonly upload_progress = signal<Record<string, number>>({});
 	public readonly folder_stats = signal<
-		Record<string, { count: number; size: number }>
+		Record<string, { count: number; size: number; is_truncated: boolean }>
 	>({});
 
 	// Navigation history

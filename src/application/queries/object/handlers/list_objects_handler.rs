@@ -30,6 +30,7 @@ impl ListObjectsHandler {
             continuation_token = ?query.continuation_token(),
             prefix = ?query.prefix(),
             max_keys = ?query.max_keys(),
+            delimiter = ?query.delimiter(),
             "Listing objects"
         );
 
@@ -40,6 +41,7 @@ impl ListObjectsHandler {
                 query.prefix(),
                 query.continuation_token(),
                 query.max_keys(),
+                query.delimiter(),
             )
             .await?;
 
@@ -47,6 +49,7 @@ impl ListObjectsHandler {
             trace_id = %trace_id,
             bucket = %query.bucket(),
             object_count = result.objects.len(),
+            common_prefix_count = result.common_prefixes.len(),
             is_truncated = result.is_truncated,
             "Listed objects"
         );

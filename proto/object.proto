@@ -53,6 +53,15 @@ message ListObjectsResponse {
     repeated ObjectInfo data = 2;
     optional string next_continuation_token = 3;
     bool is_truncated = 4;
+    repeated string common_prefixes = 5; // 虛擬資料夾列表（使用 delimiter 時回傳）
+    map<string, FolderStats> folder_stats = 6; // 各資料夾的統計資訊
+}
+
+// 資料夾統計資訊
+message FolderStats {
+    int64 count = 1; // 檔案數量（不含子資料夾）
+    int64 size = 2; // 檔案總大小（bytes）
+    bool is_truncated = 3; // 如果 true，表示數量超過 1000，顯示為 "1000+"
 }
 
 message ObjectMetadataResponse {
@@ -96,6 +105,7 @@ message ListObjectsRequest {
     optional string prefix = 2;
     optional string continuation_token = 3;
     optional int32 max_keys = 4;
+    optional string delimiter = 5;  // 分隔符，通常是 "/" 用於虛擬資料夾分頁
 }
 
 message GetObjectMetadataRequest {

@@ -65,6 +65,7 @@ export class BucketService {
 		prefix?: string,
 		continuation_token?: string,
 		max_keys?: number,
+		delimiter?: string,
 	): Promise<ObjectList> {
 		const params = new URLSearchParams();
 		if (prefix) {
@@ -75,6 +76,9 @@ export class BucketService {
 		}
 		if (max_keys) {
 			params.set("max_keys", max_keys.toString());
+		}
+		if (delimiter) {
+			params.set("delimiter", delimiter);
 		}
 
 		const url = build_path(ObjectPath.BASE, { bucket_name });

@@ -9,6 +9,7 @@ pub struct ListObjectsQuery {
     prefix: Option<String>,
     continuation_token: Option<String>,
     max_keys: Option<i32>,
+    delimiter: Option<String>,
 }
 
 impl ListObjectsQuery {
@@ -18,12 +19,14 @@ impl ListObjectsQuery {
         prefix: Option<String>,
         continuation_token: Option<String>,
         max_keys: Option<i32>,
+        delimiter: Option<String>,
     ) -> Result<Self, DomainError> {
         let query = Self {
             bucket,
             prefix,
             continuation_token,
             max_keys,
+            delimiter,
         };
         query.validate()?;
         Ok(query)
@@ -64,5 +67,10 @@ impl ListObjectsQuery {
     /// Get the max keys
     pub fn max_keys(&self) -> Option<i32> {
         self.max_keys
+    }
+
+    /// Get the delimiter for virtual folder navigation
+    pub fn delimiter(&self) -> Option<&str> {
+        self.delimiter.as_deref()
     }
 }

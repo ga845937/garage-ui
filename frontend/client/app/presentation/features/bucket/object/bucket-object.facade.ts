@@ -2,6 +2,8 @@ import type { UploadDialogResult } from "./components/upload-dialog/upload-dialo
 
 import { Injectable, inject, signal } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { from, lastValueFrom } from "rxjs";
+import { mergeMap, toArray } from "rxjs/operators";
 
 import {
 	DeleteObjectCommand,
@@ -16,6 +18,7 @@ import { BucketService } from "../../../../infrastructure/api/bucket.service";
 import { I18nService } from "../../../../infrastructure/i18n/i18n.service";
 import { NavigationService } from "../../../../infrastructure/navigation";
 import { LayoutService } from "../../../layout/layout.service";
+import { TaskProgressService } from "../../../layout/task-progress.service";
 import { ConfirmDialogService } from "../../../shared/confirm-dialog";
 import { UploadDialogComponent } from "./components/upload-dialog/upload-dialog.component";
 
@@ -32,12 +35,15 @@ export class BucketObjectFacade {
 	private readonly i18n = inject(I18nService);
 	private readonly confirm_dialog = inject(ConfirmDialogService);
 	private readonly dialog = inject(MatDialog);
+	private readonly task_service = inject(TaskProgressService);
 
 	// UI State
 	public readonly view_mode = signal<"grid" | "list">("grid");
 	public readonly is_dragging = signal(false);
 	public readonly selection_mode = signal(false);
 	public readonly selected_items = signal<Set<string>>(new Set());
+
+	private readonly concurrency_limit = 10;
 
 	public get bucket_id(): string {
 		return this.store.selected_bucket()?.id ?? "";
@@ -60,7 +66,9 @@ export class BucketObjectFacade {
 			this.store.set_selected_bucket(bucket);
 		} catch (e) {
 			const message =
-				e instanceof Error ? e.message : "Failed to load bucket details";
+				e instanceof Error
+					? e.message
+					: "Failed to load bucket details";
 			this.layout.set_error(message);
 			this.layout.set_loading(false);
 			return;
@@ -76,12 +84,15 @@ export class BucketObjectFacade {
 
 	public async load_objects(prefix?: string): Promise<void> {
 		const p = prefix ?? this.store.current_prefix();
-		
+
 		this.store.set_loading_objects(true);
 		this.store.set_current_prefix(p);
-		
+
 		try {
-			const result = await this.list_objects_query.execute(this.bucket_name, p);
+			const result = await this.list_objects_query.execute(
+				this.bucket_name,
+				p,
+			);
 			this.store.set_objects(result.objects);
 			this.store.set_prefixes(result.prefixes);
 			this.store.set_folder_stats(result.folder_stats);
@@ -148,52 +159,96 @@ export class BucketObjectFacade {
 			.afterClosed()
 			.subscribe((result: UploadDialogResult | undefined) => {
 				if (result?.files && result.files.length > 0) {
-					this.upload_files_with_paths(result.files);
+					void this.upload_files_with_paths(result.files);
 				}
 			});
 	}
 
-	private pending_uploads = 0;
-
-	private upload_files_with_paths(
+	private async upload_files_with_paths(
 		// biome-ignore lint/style/useNamingConvention: WebAPI interface
 		files: { file: File; relativePath: string }[],
-	): void {
-		this.pending_uploads += files.length;
-		for (const { file, relativePath: relative_path } of files) {
-			const key = this.store.current_prefix() + relative_path;
-			this.upload_command
-				.execute(this.bucket_id, this.bucket_name, key, file)
-				.finally(() => {
-					this.pending_uploads -= 1;
-					if (this.pending_uploads === 0) {
-						this.load_objects();
-					}
-				});
-		}
+	): Promise<void> {
+		const items = files.map((item) => {
+			const key = this.store.current_prefix() + item.relativePath;
+			const filename = key.split("/").pop() || key;
+			const { id, signal } = this.task_service.add_task(
+				{
+					bucket_id: this.bucket_id,
+					bucket_name: this.bucket_name,
+					filename,
+					object_key: key,
+					type: "upload",
+				},
+				"queued",
+			);
+			return { ...item, id, key, signal };
+		});
+
+		const stream = from(items).pipe(
+			mergeMap(async (item) => {
+				try {
+					await this.upload_command.execute(
+						this.bucket_id,
+						this.bucket_name,
+						item.key,
+						item.file,
+						{ id: item.id, signal: item.signal },
+					);
+				} catch (error) {
+					// Error handled in command or ignored
+				}
+			}, this.concurrency_limit),
+			toArray(),
+		);
+
+		await lastValueFrom(stream);
+		await this.load_objects();
 	}
 
-	public upload_files(files: File[]): void {
-		this.pending_uploads += files.length;
-		for (const file of files) {
+	public async upload_files(files: File[]): Promise<void> {
+		const items = files.map((file) => {
 			const key = this.store.current_prefix() + file.name;
-			this.upload_command
-				.execute(this.bucket_id, this.bucket_name, key, file)
-				.finally(() => {
-					this.pending_uploads -= 1;
-					if (this.pending_uploads === 0) {
-						this.load_objects();
-					}
-				});
-		}
+			const filename = key.split("/").pop() || key;
+			const { id, signal } = this.task_service.add_task(
+				{
+					bucket_id: this.bucket_id,
+					bucket_name: this.bucket_name,
+					filename,
+					object_key: key,
+					type: "upload",
+				},
+				"queued",
+			);
+			return { file, id, key, signal };
+		});
+
+		const stream = from(items).pipe(
+			mergeMap(async (item) => {
+				try {
+					await this.upload_command.execute(
+						this.bucket_id,
+						this.bucket_name,
+						item.key,
+						item.file,
+						{ id: item.id, signal: item.signal },
+					);
+				} catch (error) {
+					// Error handled in command or ignored
+				}
+			}, this.concurrency_limit),
+			toArray(),
+		);
+
+		await lastValueFrom(stream);
+		await this.load_objects();
 	}
 
 	public download_file(key: string): void {
 		const url = this.bucket_service.get_download_url(this.bucket_name, key);
-		
-		const link = document.createElement('a');
+
+		const link = document.createElement("a");
 		link.href = url;
-		link.download = key.split('/').pop() || key;
+		link.download = key.split("/").pop() || key;
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
@@ -237,7 +292,10 @@ export class BucketObjectFacade {
 	}
 
 	public select_all(): void {
-		const all_keys = this.store.objects().map(o => o.key).concat(this.store.prefixes());
+		const all_keys = this.store
+			.objects()
+			.map((o) => o.key)
+			.concat(this.store.prefixes());
 		this.selected_items.set(new Set(all_keys));
 	}
 

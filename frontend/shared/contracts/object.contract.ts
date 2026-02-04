@@ -27,6 +27,10 @@ export class ListObjectsRequestContract {
 	@Min(1)
 	@IsOptional()
 	public max_keys?: number;
+
+	@IsString()
+	@IsOptional()
+	public delimiter?: string;
 }
 
 export class DeleteObjectRequestContract {

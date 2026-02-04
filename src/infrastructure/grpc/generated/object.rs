@@ -10,6 +10,29 @@ pub struct ListObjectsResponse {
     pub next_continuation_token: ::core::option::Option<::prost::alloc::string::String>,
     #[prost(bool, tag = "4")]
     pub is_truncated: bool,
+    /// 虛擬資料夾列表（使用 delimiter 時回傳）
+    #[prost(string, repeated, tag = "5")]
+    pub common_prefixes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// 各資料夾的統計資訊
+    #[prost(map = "string, message", tag = "6")]
+    pub folder_stats: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        FolderStats,
+    >,
+}
+/// 資料夾統計資訊
+#[derive(serde::Serialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FolderStats {
+    /// 檔案數量（不含子資料夾）
+    #[prost(int64, tag = "1")]
+    pub count: i64,
+    /// 檔案總大小（bytes）
+    #[prost(int64, tag = "2")]
+    pub size: i64,
+    /// 如果 true，表示數量超過 1000，顯示為 "1000+"
+    #[prost(bool, tag = "3")]
+    pub is_truncated: bool,
 }
 #[derive(serde::Serialize)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
@@ -78,6 +101,9 @@ pub struct ListObjectsRequest {
     pub continuation_token: ::core::option::Option<::prost::alloc::string::String>,
     #[prost(int32, optional, tag = "4")]
     pub max_keys: ::core::option::Option<i32>,
+    /// 分隔符，通常是 "/" 用於虛擬資料夾分頁
+    #[prost(string, optional, tag = "5")]
+    pub delimiter: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[derive(serde::Serialize)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
